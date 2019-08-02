@@ -2,14 +2,13 @@ include <SRC/DIYBuilder.scad>
 //TODO: Simplify builds! do not rely on commenting to get build!
 //Uncomment Layout you want or build your own layout
 
-//include <SRC/Layouts/Pseudoku/LapidaryInanityFull.scad> // 5x3+4 FlatLander's Paradigm
+//include <SRC/Layouts/Pseudoku/CorneTron.scad> // 5x3+4 FlatLander's Paradigm
 //include <SRC/Layouts/Pseudoku/HypoWarp_Choc.scad>       // (6x3+2)+4 Hypothetical Rhetoric 
 //include <SRC/Layouts/Pseudoku/HypoWarp_Choc+TB.scad>       // (6x3+2)+4 Hypothetical Rhetoric 
 //include <SRC/Layouts/Pseudoku/MiniWarp_Choc.scad>      // (5x3+2)+3 Jumpin' Jacks Jr. 
 include <SRC/Layouts/Pseudoku/GiGi_Choc.scad>           // 5x2+3 Steno Dreamer 
 //include <SRC/Layouts/Pseudoku/GiGi(030)TB_Choc.scad>           // 5x2+3 Steno Dreamer 
 //include <SRC/Layouts/Pseudoku/GiGi_MX.scad>           // 5x2+3 Steno Dreamer 
-//include <SRC/Layouts/Pseudoku/AlphaPrime_Choc.scad>     // 5x2+4 BigBrained Alpha  
 
 
 //##################     Main Calls    ##################
