@@ -235,7 +235,10 @@ Sborder = //color "Crimson"
    
   [[C4, RowEnds[C4], false,FRONT, [RIGHT,0,0], [1,RScale,1]], //fill gap between general border and Bottom Enclosure near C4
    [C5, RowEnds[C5], false,FRONT, [RIGHT,0,0], [1,RScale,1]],
-   [C6, RowEnds[C6], false,FRONT, [0,0,0],     [1,RScale,1]]]
+   [C6, RowEnds[C6], false,FRONT, [0,0,0],     [1,RScale,1]]],
+   
+  [[T1, RowInits[T1],  true,RIGHT, [0,0,0], [RScale,1,1]], //fill gap between T1 and T2 BACK
+   [T2, RowInits[T2], false, BACK, [0,0,0], [1,RScale,1]]]
  ];
 
 //define Spical border Hull to join Column and Thumb Cluster 

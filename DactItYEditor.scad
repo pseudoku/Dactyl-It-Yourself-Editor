@@ -25,14 +25,16 @@ mirror([0,0,0]){ //[100] for Left side
         Border           = false,   // Generic Top enclosure
         PrettyBorder     = true,   //Lazy man's pretty border 
         CustomBorder     = true,   //manually defined custom border
-        ColoredSection   = false //Color border by module to visiualize during edit/debug 
+        ColoredSection   = true, //Color border by module to visiualize during edit/debug
+        Enclosure        = true
         );
 
     //  PlaceRmCn(R2,T1)rotate([0,90,0])RotaryEncoder(stemLength = 5, Wheel = 25);
     }
 //      translate(trackOrigin)color("royalblue")sphere(d=trackR*2+.5,$fn= 64);
   }
-//     translate(trackOrigin)rotate(trackTilt)Tra
+
+/*enclusure */
   difference(){
    BuildBottomEnclosure(struct = Eborder, Mount = true, JackType = true, MCUType = true);
    BuildBottomPlate(struct = Eborder, hullList = Hstruct, Mount = false, JackType = false, MCUType = false);  
@@ -42,6 +44,6 @@ mirror([0,0,0]){ //[100] for Left side
   color()BuildBottomPlate(struct = Eborder, hullList = Hstruct, Mount = true, JackType = true, MCUType = true);  
 
 /*3. caps for visualization */
-  rotate(tenting)translate([0,0,plateHeight]){BuildSet(switchType = Choc, capType = DSA, colors = "ivory", stemcolor = "lightGreen");}
+//  rotate(tenting)translate([0,0,plateHeight]){BuildSet(switchType = Choc, capType = DSA, colors = "ivory", stemcolor = "lightGreen");}
 
 }
