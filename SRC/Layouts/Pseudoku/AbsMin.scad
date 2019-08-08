@@ -1,14 +1,14 @@
 /*
 Designer: Pseudoku
-Summary:  (6x3+2)+4 split Choc [tweak and get 5x3+3! MiniWarp] 
-Concept:  Commision Design
-          Shallow scooped to lull you into the world of ErgoWarp. Semi-opposable compact thumb cluster
+Summary:  (4x2)+(0,2,0) TB split Choc
+Concept:  more ring and pinkies spread, 
+          
 TODOs:    * create mounting post for enclosure and bottom plate  
           * generate bottom plate
           
 
 */
-//-----  Enum 
+//-----  Enum
 R0 = 0; //bottom row
 R1 = 1;
 R2 = 2;
@@ -74,8 +74,8 @@ RScale       = 2;        //Rim bottom scaling
 EScale       = 2.5;      //Enclosure bottom scaling
 PBuffer      = 0;       //additional Plate thickness
 Bthickness   = PlateDim[0] - 2;  //thickness of the enclosure rim 
-BFrontHeight = 3;                    //Height of frontside of the enclosure rim 
-BBackHeight  = 3;                    //Height of Backside of the enclosure rim 
+BFrontHeight = 0;                    //Height of frontside of the enclosure rim 
+BBackHeight  = 0;                    //Height of Backside of the enclosure rim 
 TFrontHeight = 0;
 TBackHeight  = 0;
 T0Buffer     = 0;                    //Additional Plate thickness buffer for T0 position.
@@ -90,12 +90,12 @@ ThumbOffset = .2;
 
 //-----     Tenting Parameters
 tenting     = [0,15,0]; // tenting for enclusoure  
-plateHeight = 25;       // height adjustment for enclusure 
+plateHeight = 23;       // height adjustment for enclusure 
 
 //-----     Trackball Parameters
 trackR      = 17;        //trackball raidus  M570: 37mm, Ergo and Kennington: 40mm
-trackOrigin = [2,-25,7]; //trackball origin
-trackTilt   = [0,0,0];    //angle for tilting trackpoint support and PCB
+trackOrigin = [-18,-27,-8]; //trackball origin
+trackTilt   = [-60,-00,130];    //angle for tilting trackpoint support and PCB
 
 //-----     Rotary Encoder
 RELoc       = [];
@@ -121,43 +121,43 @@ TRRSAng     = [0,0,90];
 
 //-------  LAYOUT parameters
 //column loop setter
-CStart   = C1;  // Set column to begin looping for the build
-CEnd     = C6;  // Set column to end for the build
-TStart   = T0;  // Set Thumb Cluster Colum to begin
-TEnd     = T2;  // Set Thumb Cluster to end 
+CStart   = C2;  // Set column to begin looping for the build
+CEnd     = C5;  // Set column to end for the build
+TStart   = T1;  // Set Thumb Cluster Colum to begin
+TEnd     = T1;  // Set Thumb Cluster to end 
 colRange = concat([for (i = [CStart:CEnd]) i], [for (i = [TStart:TEnd]) i]); //columnar for loop range 
   
 //structure to hold column origin transformation
 ColumnOrigin = [//[translation vec]       [Global Rot]    [Local Rot]
                 [[  -54, -unit*3/4,   1], [ 0,   0,   0], [ 0, 90,  0]], //INDEX 1 
-                [[  -36,-unit*7/16,  -2], [ 0,   0,   0], [ 0, 90,  0]], //INDEX 2 
-                [[  -18,   -unit/4,  -2], [ 0,   0,   0], [ 0, 90,  0]], //INDEX 3 
+                [[  -36,-unit*7/16,   0], [ 0,   0,   0], [ 0, 90,  0]], //INDEX 2 
+                [[  -20,   -unit/4,  -2], [ 0,   0,   5], [ 0, 90,  0]], //INDEX 3 
                 [[    0,    unit/8,  -5], [ 0,   0,   0], [ 0, 90,  0]], //MIDDLE 
-                [[   18,   -unit/8,   0], [ 0,   0,  -0], [ 0, 90,  0]], //RING 
-                [[ 37.0, -unit*5/8,   8], [ 0,   5, -15], [ 0, 90,  0]], //PINKY 1 
-                [[ 54.0, -unit*5/8,  12], [ 0,  10, -15], [ 0, 90,  0]], //PINKY 2 
+                [[   19,   -unit/8,   0], [ 0,   0,  -5], [ 0, 90,  0]], //RING 
+                [[ 38.0, -unit*5/8,  12], [ 0,   5, -15], [ 0, 90,  0]], //PINKY 1 
+                [[ 54.5, -unit*5/8,  16], [ 0,  10, -15], [ 0, 90,  0]], //PINKY 2 
                 [[ 67.0, -unit*5/8,  21], [ 0,  15, -15], [ 0, 90,  0]], //PINKY 3                 
-                [[  -61,       -10, -23], [ 0,   0,  10], [-5, 95,  0]], //Thumb Outer 
+                [[  -49,       -15, -27], [ 0,   0,   0], [ 0, 90,-60]], //Thumb Outer 
                 [[  -36,       -22, -14], [ 0,   0,   0], [ 0, 90,-60]], //Thumb OuterMid
                 [[  -29,     -13.5,   3], [ 0,   0,   0], [ 0, 90,-60]], //Thumb Midlde
                 [[  -36,       -22, -14], [ 0,   0,   0], [ 0, 90,-60]], //Thumb InnerMid
                 [[  -29,     -13.5,   3], [ 0,   0,   0], [ 0, 90,-60]]  //Thumb Inner              
                ];
 
-ThumbShift  = [[2,-12, 0],[ 0, -5, -5],[ 0, 0, 0]]; //global transform for thumb cluster to jog as whole rather than editing origin
+ThumbShift  = [[-0,-5, 2],[ 0, -5, 5],[ 0, 0, 0]]; //global transform for thumb cluster to jog as whole rather than editing origin
 
 //-------  and adjustment parameters 
 
 //row loop setter
 //              C0:i1 C1:i2 C2:i3  C3:m  C4:r C5:p1 C6:p2 C7:p3 T0:Ot T1:OM T2:Md  T3:IM  T4:In
-RowInits    = [   R2,    R1,   R1,   R0,   R0,   R1,   R1,   R0,   R1,   R1,    R1,   R1,    R0]; //set which Row to begin
-RowEnds     = [   R2,    R3,   R3,   R3,   R3,   R3,   R3,   R0,   R1,   R2,    R1,   R1,    R0]; //set which Row to end
+RowInits    = [   R2,    R1,   R1,   R1,   R1,   R1,   R1,   R0,   R2,   R2,    R1,   R1,    R0]; //set which Row to begin
+RowEnds     = [   R2,    R2,   R2,   R2,   R2,   R2,   R2,   R0,   R2,   R3,    R1,   R1,    R0]; //set which Row to end
 
 //Row transforms
 RowTrans    = [[ -.18, -.18, -.18, -.18, -.18, -.55, -.55, -.55, -1.0,-1.25,-1.25,     0,     0], //R0
-               [  .80,  .78,  .78,  .78,  .78,  .43,  .43,  .45,    0,    0,    0,     0,     0], //R1s
-               [ 1.95, 1.95, 1.95, 1.95, 1.95, 1.60, 1.60, 1.60,    0, 1.05,    0,     0,     0], //R2s 
-               [ 2.90, 2.90, 2.90, 2.90, 2.90, 2.55, 2.55, 2.55,    0, 1.75,    0,     0,     0], //R3s
+               [  .80,  .80,  .80,   .8,   .8,  .45,  .45,  .45,    0,    0,  -.0,     0,     0], //R1s
+               [ 1.95, 1.95, 1.95, 1.95, 1.95, 1.60, 1.60, 1.60, 1.15, 0.00,    0,     0,     0], //R2s 
+               [ 2.90, 2.90, 2.90, 2.90, 2.90, 2.55, 2.55, 2.55,    0, 1.05,    0,     0,     0], //R3s
                [ 3.80, 3.80, 3.80, 3.80, 3.80,    1,  .83,    3,    0,    0,    0,     0,     0], //R4
                [ 4.45, 4.45, 4.45, 4.45, 4.45,    4,   -4,    4,    0,    0,    0,     0,     0]  //R5           
               ]*unit; 
@@ -170,10 +170,10 @@ ColTrans    = [[    0,    0,    0,    0,    0,    0,    0,    0,    0,   .3,    
                [    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0]  //R5           
               ]*unit; 
               
-Pitch       = [[   25,   25,   15,   15,   15,   25,   25,   25,   10,   10,  -10,     0,     0],  //R0
+Pitch       = [[   25,   25,   25,   25,   25,   25,   25,   25,   10,   10,  -10,     0,     0],  //R0
                [   15,   15,   15,   15,   15,   15,   15,   15,    0,  -15,  -25,     0,     0],  //R1s
-               [  -15,  -15,  -15,  -15,  -15,  -15,  -15,  -15,    0,  -40,    0,     0,     0],  //R2s 
-               [  -25,  -20,  -20,  -20,  -20,  -20,  -20,  -20,    0,  -60,    0,     0,     0],  //R3
+               [  -15,  -15,  -15,  -15,  -15,  -15,  -15,  -15,  -20,  -15,    0,     0,     0],  //R2s 
+               [  -25,  -25,  -25,  -25,  -25,  -25,  -25,  -25,    0,  -40,    0,     0,     0],  //R3
                [  -45,  -45,  -45,  -45,  -45,    0,    0,    0,    0,    0,    0,     0,     0],  //R4
                [  -58,  -58,  -58,  -58,  -58,    0,    0,    0,    0,    0,    0,     0,     0]   //R5
               ];
@@ -186,32 +186,30 @@ Roll        = [[   -4,    0,    0,    0,    0,    0,    0,    0,    0,    0,    
                [   -10,   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0]   //R5
               ];         
               
-Height      = [[ -6.5, -6.5, -4.5, -4.5, -4.5, -6.5, -6.5, -6.5,    1,    0,    7,     0,     0],  //R0
+Height      = [[ -6.5, -6.5, -6.5, -6.5, -6.5, -6.5, -6.5, -6.5,    1,    0,    7,     0,     0],  //R0
                [    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0],  //R1s
-               [    0,    0,    0,    0,    0,    0,    0,    0,    0,   -8,    0,     0,     0],  //R2s 
-               [ -6.5, -5.5, -5.5, -5.5, -5.5, -5.5, -5.5, -5.5,    0,  -24,    0,     0,     0],  //R3
+               [    0,    0,    0,    0,    0,    0,    0,    0,    2,   -0,    0,     0,     0],  //R2s 
+               [ -6.5, -6.5, -6.5, -6.5, -6.5, -6.5, -6.5, -6.5,    0,   -8,    0,     0,     0],  //R3
                [  -18,  -18,  -18,  -18,  -18,    0,    0,    0,    0,    0,    0,     0,     0],  //R4
                [  -33,  -33,  -33,  -33,  -33,    0,    0,    0,    0,    0,    0,     0,     0]   //R5
               ]; 
-
-//Account for non-1u caps
 CapScale     =[[   1,     1,     1,     1,     1,     1,     1,     1,     1,     1,    1,     1,    1],  //R0
-               [   1,     1,     1,     1,     1,     1,     1,     1,  1.25,     1, 1.25,     1,    1],  //R1s
-               [   1,     1,     1,     1,     1,     1,     1,     1,     1,     1,    1,     1,    1],  //R2s 
+               [   1,     1,     1,     1,     1,     1,     1,     1,     1,     1, 1.5,     1,    1],  //R1s
+               [   1,     1,     1,     1,     1,     1,     1,     1,   1.5,     1,    1,     1,    1],  //R2s 
                [   1,     1,     1,     1,     1,     1,     1,     1,     1,     1,    1,     1,    1],  //R3
                [   1,     1,     1,     1,     1,     1,     1,     1,     1,     1,    1,     1,    1],  //R4
                [   1,     1,     1,     1,     1,     1,     1,     1,     1,     1,    1,     1,    1]   //R5
               ];
 SwitchOrientation = //if length-wise true 
               [[ true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true],  
-               [ true,  true,  true,  true,  true,  true,  true,  true, false,  true, false,  true,  true],
-               [ true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true],
+               [ true,  true,  true,  true,  true,  true,  true,  true,  true,  true, false,  true,  true],
+               [ true,  true,  true,  true,  true,  true,  true,  true, false,  true,  true,  true,  true],
                [ true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true],
                [ true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true],
                [ true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true]
               ]; 
 //-----     border Customization
-//          Ca, Ra, Hull_a,      Cb, Rb,     Hull_b
+
 TopCuts = [[C5, R3, [RIGHT,0,0], C6, R3, [LEFT,0,0]],
            [T0, R1, [RIGHT,0,0], T1, R2, [LEFT,0,0]],
            [T0, R1, [RIGHT,0,0], T1, R1, [LEFT,0,0]],
@@ -235,6 +233,7 @@ Rborder    = [[], //R0
               ]; //color "YellowGreen"
               
 //define Spical border Hull to make border pretty             
+//define Spical border Hull to make border pretty             
 Sborder = //color "Crimson"
  [
 //[[Col, Row, len = true, Jog direction, HullFace, Scale], ...], 
@@ -249,47 +248,53 @@ Sborder = //color "Crimson"
    
   [[C4, RowEnds[C4], false,FRONT, [RIGHT,0,0], [1,RScale,1]], //fill gap between general border and Bottom Enclosure near C4
    [C5, RowEnds[C5], false,FRONT, [RIGHT,0,0], [1,RScale,1]],
-   [C6, RowEnds[C6], false,FRONT, [0,0,0],     [1,RScale,1]]],
-   
-  [[T0, R1, true,RIGHT, [0,0,0],     [1,1,1]], //fill gap failed catch at T0R0 -> T1R0&R1
-   [T1, R1, true,LEFT,  [0,FRONT,0], [RScale,1,1]],
-   [T1, R2, true,LEFT,  [0,BACK,0],  [RScale,1,1]]],
+   [C6, RowEnds[C6], false,FRONT, [0,0,0],     [1,RScale,1]]]
  ];
 
 //define Spical border Hull to join Column and Thumb Cluster 
 TCJoints = //color "Salmon"
  [
-   [[C1, RowInits[C1],  true,  LEFT,   [0,FRONT,0], [RScale,1,1]], //Left C1R0 to T1R2 
-    [C1, RowInits[C1],  true,  LEFT,   [0,BACK,0],  [RScale,1,1]],
-    [T1,  RowEnds[T1], false, FRONT,   [0,0,0],     [1,RScale,1]] 
+//   [[C1, RowInits[C1],  true,  LEFT,   [0,FRONT,0], [RScale,1,1]], //Left C1R0 to T1R2 
+////    [C1, RowInits[C1],  true,  LEFT,   [0,BACK,0],  [RScale,1,1]],
+//    [T1,  RowEnds[T1], false, FRONT,   [0,0,0],     [1,RScale,1]] 
+//   ], 
+   [[C2, RowInits[C2], false,  BACK,   [LEFT,0,0], [1,RScale,1]], //Left C1R0 to T1R2 
+    [C2, RowInits[C2],  true,  LEFT,   [0,BACK,0],  [RScale,1,1]],
+    [T1,  RowEnds[T1],  true, RIGHT,   [0,0,0],     [RScale,1,1]] 
    ], 
-   [[T0,  RowEnds[T0], false, FRONT,   [LEFT,0,0],  [1,RScale,1]],//Left T0 to T1 
-    [T0,  RowEnds[T0],  true,  LEFT,   [0,FRONT,0], [RScale,1,1]],
-    [T1,  RowEnds[T1], false, FRONT,   [LEFT,0,0],  [1,1,1]] 
-   ],
-   [[C1, RowInits[C1],  true,  LEFT,   [0,BACK,0], [RScale,1,1]],  //C1R0 corner to T1R2
-    [C1, RowInits[C1], false,  BACK,   [LEFT,0,0], [1,RScale,1]], 
-    [T1,  RowEnds[T1], false, FRONT,   [LEFT,0,0], [1,RScale,1]] 
+   [[C2, RowInits[C2],  true,  LEFT,   [0,0,0], [RScale,1,1]],  //C1R0 corner to T1R2
+    [T1,  RowEnds[T1],  true, RIGHT,   [0,FRONT,0], [RScale,1,1]],
+    [T1, RowEnds[T1], false,  FRONT,   [RIGHT,0,0], [1,RScale,1]],
    ], 
-   [[C1, RowInits[C1], false,  BACK,    [0,0,0],        [1,RScale,1]], 
-    [T1,  RowEnds[T1],  true, RIGHT,    [LEFT,FRONT,0], [RScale,1,1]],
+   [[C2, RowInits[C2],  true,  LEFT,   [0,FRONT,0], [RScale,1,1]],
+    [T1, RowEnds[T1], false,  FRONT,   [0,0,0], [1,RScale,1]],
    ],
-    [[C1, RowInits[C1], false,  BACK,    [0,0,0],     [1,RScale,1]], 
-     [C3, RowInits[C3], false,  BACK,    [LEFT,0,0],  [1,RScale,1]], 
-     [T2,  RowEnds[T2], false, FRONT,    [0,0,0],     [CapScale[R1][T2],RScale,1]],
-     [T2,  RowEnds[T2],  true, RIGHT,    [0,FRONT,0], [RScale,1,1]]
-   ],  
-   [[C3, RowInits[C3], false,  BACK,    [LEFT,0,0],  [1,RScale,1]], 
-    [T2,  RowEnds[T2], false,  BACK,    [RIGHT,0,0], [1,RScale,1]],
-    [T2,  RowEnds[T2],  true, RIGHT,    [0,0,0],     [RScale,1,1]]
-   ],
-   [[C3, RowInits[C3], false,  BACK,    [0,0,0],    [1,RScale,1]],
-    [C4, RowInits[C4], false,  BACK,    [LEFT,0,0], [1,RScale,1]]
-   ],    
-   [[C3, RowInits[C3], false,  BACK,    [RIGHT,0,0],[1,RScale,1]],
-    [C4, RowInits[C4], false,  BACK,    [LEFT,0,0], [1,RScale,1]],
-    [C5, RowInits[C5], false,  BACK,    [0,0,0],    [1,RScale,1]]
-   ]
+   [[C2, RowInits[C2], false,  BACK,   [0,0,0], [1,RScale,1]],  //C1R0 corner to T1R2
+    [T1,  RowEnds[T1],  true, RIGHT,   [0,BACK,0], [RScale,1,1]],
+   ], 
+   [[C2, RowInits[C2], false,  BACK,   [RIGHT,0,0], [1,RScale,1]],  //C1R0 corner to T1R2
+    [T1,  RowEnds[T1],  true, RIGHT,   [0,BACK,0], [RScale,1,1]],
+    [T1, RowInits[T1],  true, RIGHT,   [0,0,0], [RScale,1,1]],
+   ],   
+   
+////   [[C2, RowInits[C2], false,  BACK,    [RIGHT,0,0],     [RScale,1,1]], 
+////    [C4, RowInits[C4], false,  BACK,    [LEFT,0,0],     [RScale,1,1]], 
+////    [T1,           R1,  true, RIGHT,    [0,0,0],     [1,1,1]],
+////   ],  
+//   [[C2, RowInits[C2], false,  BACK,    [RIGHT,0,0],     [RScale,1,1]], 
+//    [C4, RowInits[C4], false,  BACK,    [LEFT,0,0],     [RScale,1,1]], 
+//    [C5, RowInits[C5], false,  BACK,    [LEFT,0,0],     [1,RScale,1]], 
+//    [C5, RowInits[C5],  true, LEFT,    [0,BACK,0],     [RScale,1,1]], 
+//    [T1,           R2,  true, RIGHT,    [0,BACK ,0],     [1,1,1]]
+//   ],  
+////   [[C2, RowInits[C2], false,  BACK,    [LEFT,0,0],  [1,RScale,1]], 
+////    [T2,  RowEnds[T2], false, FRONT,    [RIGHT,0,0], [1,RScale,1]],
+////    [T2,  RowEnds[T2], false,  BACK,    [RIGHT,0,0], [1,RScale,1]],
+////    [T2,  RowEnds[T2],  true, RIGHT,    [0,FRONT,0], [RScale,1,1]]
+////   ],
+////   [[C3, RowInits[C3], false,  BACK,    [0,0,0],    [1,RScale,1]],
+////    [C4, RowInits[C4], false,  BACK,    [LEFT,0,0], [1,RScale,1]]
+////   ]   
  ];
  
  
@@ -302,29 +307,30 @@ Eborder =
   [//[[Col, Row, len = true, Jog direction1, HullFace, Scale], ...], 
     //LEFT Section  
     [//T1R1 Side 0
+      [[TStart, RowInits[TStart], true, LEFT,              [0,0,BOTTOM], [RScale,1,1]] ],
+      [[TStart, RowInits[TStart], true, LEFT+ThumbOffset,  [0,0,BOTTOM], [EScale,1,1]] ]
+    ],  
+    [//T1R1 Side 0
+      [[TStart,              R1, true, LEFT,              [0,FRONT,BOTTOM], [RScale,1,1]],
+       [TStart,              R2, true, LEFT,              [0,BACK,BOTTOM], [RScale,1,1]],
+       [TStart, RowEnds[TStart], true, LEFT,              [0,BACK,BOTTOM], [RScale,1,1]] 
+      ],
+      [[TStart,              R1, true, LEFT+ThumbOffset,  [0,FRONT,BOTTOM], [EScale,1,1]],
+       [TStart, RowEnds[TStart], true, LEFT+ThumbOffset,  [0,BACK,BOTTOM], [EScale,1,1]],
+      ]
+    ],  
+    [//T1R1 Side 0
       [[TStart, RowEnds[TStart], true, LEFT,              [0,0,BOTTOM], [RScale,1,1]] ],
       [[TStart, RowEnds[TStart], true, LEFT+ThumbOffset,  [0,0,BOTTOM], [EScale,1,1]] ]
     ],    
     [//T0 Front conrer
       [[TStart, RowEnds[TStart], true, LEFT,              [0,FRONT,BOTTOM], [RScale,1,1]], 
-       [TStart, RowEnds[TStart], false,FRONT,             [LEFT,0,BOTTOM],  [1,RScale,1]] ],
+       [TStart, RowEnds[TStart], false,FRONT,             [0,0,BOTTOM],     [1,RScale,1]], 
+       [C1, R2, true, LEFT,              [0,BACK,BOTTOM],  [RScale,1,1]]
+       ],
       [[TStart, RowEnds[TStart], true, LEFT+ThumbOffset,  [0,FRONT,BOTTOM], [EScale,1,1]],
-       [TStart, RowEnds[TStart], false,FRONT+ThumbOffset, [LEFT,0,BOTTOM],  [1,EScale,1]] ]
-    ],
-    [//T1 to T2  
-      [[T0, R1,  true, LEFT,             [LEFT,FRONT,0],   [RScale,1,1]],
-       [T0, R1, false,FRONT,             [LEFT,0,0],       [1,RScale,1]],
-       [T1, R2, false,FRONT,             [LEFT,FRONT,0],   [RScale,1,1]] ],
-      [[T0, R1, false,FRONT+ThumbOffset, [LEFT,0,BOTTOM],  [1,EScale,1]],
-       [T1, R2,  true, LEFT+LeftOffset,  [0,FRONT,BOTTOM], [EScale,1,1]] ]
-    ],
-    [//T2 to C1R1 
-      [[T1, R2, true, LEFT,              [LEFT,FRONT,BOTTOM], [1,RScale,1]], 
-       [T1, R2, false,FRONT,             [LEFT,FRONT,BOTTOM], [1,RScale,1]], 
-       [C1, R1, true, LEFT,              [0,FRONT,BOTTOM],    [RScale,1,1]] ],
-      [[T1, R2, true, LEFT+LeftOffset,   [0,FRONT,BOTTOM],    [EScale,1,1]],
-       [C1, R1, true, LEFT+LeftOffset,   [0,FRONT,BOTTOM],    [EScale,1,1]] ]
-    ],   
+       [    C1,              R1, true, LEFT+LeftOffset,   [0,FRONT,BOTTOM], [EScale,1,1]] ]
+    ], 
     [//C1R1 to C1R2 side
       [[C1, R1, true, LEFT,              [0,FRONT,BOTTOM], [RScale,1,1]],
        [C1, R2, true, LEFT,              [0,BACK,BOTTOM],  [RScale,1,1]] ],
@@ -335,16 +341,7 @@ Eborder =
       [[C1, R2, true, LEFT,              [0,0,BOTTOM], [RScale,1,1]]],
       [[C1, R2, true, LEFT+LeftOffset,   [0,0,BOTTOM], [EScale,1,1]]]
     ],
-    [//C1R2 to C1R3 side
-      [[C1, R2, true, LEFT,              [0,FRONT,BOTTOM], [RScale,1,1]],
-       [C1, R3, true, LEFT,              [0,BACK,BOTTOM],  [RScale,1,1]] ],
-      [[C1, R2, true, LEFT+LeftOffset,   [0,FRONT,BOTTOM], [EScale,1,1]],
-       [C1, R3, true, LEFT+LeftOffset,   [0,BACK,BOTTOM],  [EScale,1,1]] ] 
-    ],
-    [//C1R3 side
-      [[C1, R3, true, LEFT,              [0,0,BOTTOM], [RScale,1,1]]],
-      [[C1, R3, true, LEFT+LeftOffset,   [0,0,BOTTOM], [EScale,1,1]]]
-    ],
+
     
     //FRONT Section 
     [//CStart Front conrer 8
@@ -381,6 +378,7 @@ Eborder =
       [[CEnd, RowEnds[CEnd], true, RIGHT+RightOffset, [0,FRONT,BOTTOM], [EScale,1,1]],
        [CEnd, RowEnds[CEnd], false,FRONT+FrontOffset, [RIGHT,0,BOTTOM], [1,EScale,1]]]
     ],
+    
     //RIGHT Section
     [//CEndR1 side  14
       [[CEnd, RowInits[CEnd], true, RIGHT,             [0,0,BOTTOM], [RScale,1,1]]],
@@ -396,10 +394,8 @@ Eborder =
       [[CEnd, R2, true, RIGHT,            [0,0,BOTTOM], [RScale,1,1]]],
       [[CEnd, R2, true, RIGHT+RightOffset,[0,0,BOTTOM], [EScale,1,1]]]
     ],
-    [//CEnd R2 side
-      [[CEnd, R3, true, RIGHT,            [0,0,BOTTOM], [RScale,1,1]]],
-      [[CEnd, R3, true, RIGHT+RightOffset,[0,0,BOTTOM], [EScale,1,1]]]
-    ],    
+
+    
     //Back Section
     [//TStart conrer  18
       [[TStart, RowInits[TStart], true, LEFT,               [0,BACK,0],      [RScale,1,1]], 
@@ -407,45 +403,45 @@ Eborder =
       [[TStart, RowInits[TStart], true, LEFT+ThumbOffset,   [0,BACK,BOTTOM], [EScale,1,1]],
        [TStart, RowInits[TStart], false,BACK-ThumbOffset,   [LEFT,0,BOTTOM], [1,EScale,1]]]
     ],
-    [//T0 to T1 
-      [[TStart,     RowInits[TStart], false,BACK,               [LEFT,BACK,0],   [1,RScale,1]], 
-       [TStart,     RowInits[TStart],  true,LEFT,               [LEFT,BACK,0],   [RScale,1,1]],
-       [TStart+1, RowInits[TStart+1], false,BACK,               [LEFT,0,BOTTOM], [1,RScale,1]] ],
-      [[TStart,     RowInits[TStart], false,BACK-ThumbOffset,   [LEFT,0,BOTTOM], [1,EScale,1]],
-       [TStart+1, RowInits[TStart+1], false,BACK-ThumbOffset,   [LEFT,0,BOTTOM], [1,EScale,1]]]
-    ],
+//    [//T0 to T1 
+//      [[TStart,     RowInits[TStart], false,BACK,               [LEFT,BACK,0],   [1,RScale,1]], 
+//       [TStart,     RowInits[TStart],  true,LEFT,               [LEFT,BACK,0],   [RScale,1,1]],
+//       [TStart+1, RowInits[TStart+1], false,BACK,               [LEFT,0,BOTTOM], [1,RScale,1]] ],
+//      [[TStart,     RowInits[TStart], false,BACK-ThumbOffset,   [LEFT,0,BOTTOM], [1,EScale,1]],
+//       [TStart+1, RowInits[TStart+1], false,BACK-ThumbOffset,   [LEFT,0,BOTTOM], [1,EScale,1]]]
+//    ],
     [//T1 
       [[T1, R1, false,BACK,               [0,0,BOTTOM], [1,RScale,1]]],
       [[T1, R1, false,BACK-ThumbOffset,   [0,0,BOTTOM], [1,EScale,1]]]
     ],
-    [//T1 to T2  TODO FIX
-      [[T1, R1, false,BACK,               [RIGHT,0,0], [1,RScale,1]], 
-       [T2, R1, false,BACK,               [RIGHT,0,0], [1,RScale,1]] ],
-      [[T1, R1, false,BACK-ThumbOffset,   [RIGHT,0,BOTTOM], [1,EScale,1]],
-       [T2, R1, false,BACK+BackOffset,    [RIGHT,0,BOTTOM], [1,EScale,1]] ]
-    ],
-    [//T2 corner ALT
-      [[T2, R1, false,BACK,               [RIGHT,0,BOTTOM], [1,RScale,1]],
-       [T2, R1,  true,RIGHT,              [0,BACK,BOTTOM],  [RScale,1,1]] ],
-      [[T2, R1, false,BACK+BackOffset,    [RIGHT,0,BOTTOM], [1,EScale,1]],
-       [T2, R1,  true,BACK+BackOffset,    [0,BACK,BOTTOM],  [EScale,1,1]] ]
-    ],
-    [//T2 to C3 BACK ALT 
-      [[T2, R1,  true,RIGHT,              [0,BACK,BOTTOM],  [RScale,1,1]],
-       [C3, R0, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]] ],
-      [[T2, R1,  true,BACK+BackOffset,    [0,BACK,BOTTOM],  [EScale,1,1]],
-       [C3, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]] ]
-    ], 
-    [//C3R0 C4R1 BACK ALT
-      [[C3, R0, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]],
-       [C4, R0, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]],],
-      [[C3, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]],
-       [C4, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]]]
-    ],  
+//    [//T1 to T2  TODO FIX
+//      [[T1, R1, false,BACK,               [RIGHT,0,0], [1,RScale,1]], 
+//       [T2, R1, false,BACK,               [RIGHT,0,0], [1,RScale,1]] ],
+//      [[T1, R1, false,BACK-ThumbOffset,   [RIGHT,0,BOTTOM], [1,EScale,1]],
+//       [T2, R1, false,BACK+BackOffset,    [RIGHT,0,BOTTOM], [1,EScale,1]] ]
+//    ],
+//    [//T2 corner ALT
+//      [[T2, R1, false,BACK,               [RIGHT,0,BOTTOM], [1,RScale,1]],
+//       [T2, R1,  true,RIGHT,              [0,BACK,BOTTOM],  [RScale,1,1]] ],
+//      [[T2, R1, false,BACK+BackOffset,    [RIGHT,0,BOTTOM], [1,EScale,1]],
+//       [T2, R1,  true,BACK+BackOffset,    [0,BACK,BOTTOM],  [EScale,1,1]] ]
+//    ],
+//    [//T2 to C3 BACK ALT 
+//      [[T2, R1,  true,RIGHT,              [0,BACK,BOTTOM],  [RScale,1,1]],
+//       [C3, R0, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]] ],
+//      [[T2, R1,  true,BACK+BackOffset,    [0,BACK,BOTTOM],  [EScale,1,1]],
+//       [C3, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]] ]
+//    ], 
+//    [//C3R0 C4R1 BACK ALT
+//      [[C3, R0, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]],
+//       [C4, R0, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]],],
+//      [[C3, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]],
+//       [C4, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]]]
+//    ],  
     [//C4R0 C5R1 BACK 
-      [[C4, R0, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]],
+      [[T1, R1, false,BACK,                [RIGHT,0,BOTTOM], [1,RScale,1]],
        [C5, R1, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]],],
-      [[C4, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]],
+      [[T1, R1, false,BACK-ThumbOffset,     [RIGHT,0,BOTTOM], [1,EScale,1]],
        [C5, R1, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]]]
     ],   
     [//C5R1 BACK 
@@ -474,8 +470,6 @@ Hstruct =
  ];
 
 
-//define Jointing between Thumb Cluster and Column 
-
 //-----     IGNORE IF YOU are not using Clipped switch 
 xLen         = 0;        //3.4 cut length for clipped khail 
 xLenM        = xLen+0;   //fudging to get cleaner border               
@@ -489,6 +483,8 @@ Clipped      =[[   1,     1,     1,     1,     1,    -1,     1,     1,     1,   
                [   1,     1,     1,     1,    -1,     1,    -1,     1,     1,     1,    1,     1,    1]   //R5
               ]*xLen;
 
-//Orientation of the clippede switches  
+//Orientation of the clippede switches
+
+              
 KeyOriginCnRm = [for( i= [C0:C7])[[0,BottomHeight],0], for(j = [R1:R4])[0,TopHeight,0]];
  

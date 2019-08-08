@@ -86,7 +86,7 @@ module Switch(switchScale= [1,1,1], CapColor = "ivory", StemColor = "black", cli
         }
       }
       if (clipLength != 0){ // commiting unholy act in name of ergonomics
-        translate([0, -sign(clipLength)*7.8-clipLength,  0])cube([20, 15.6, 40], center = true);
+        translate([0, -sign(clipLength)*7.8-clipLength,  0])scale(switchScale)cube([20, 15.6, 40], center = true);
       }
     }
   } else if (type == Choc){
@@ -116,7 +116,7 @@ module Switch(switchScale= [1,1,1], CapColor = "ivory", StemColor = "black", cli
         }
       }
       if (clipLength != 0){ // commiting unholy act in name of ergonomics
-        translate([0, -sign(clipLength)*7.8-clipLength,  0])cube([20, 15.6, 40], center = true);
+        translate([0, -sign(clipLength)*7.8-clipLength,  0])scale(switchScale)cube([20, 15.6, 40], center = true);
       }
     }
   }
