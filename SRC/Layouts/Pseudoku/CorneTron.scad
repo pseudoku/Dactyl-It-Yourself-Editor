@@ -101,9 +101,9 @@ ColumnOrigin = [//[translation vec]       [Global Rot]    [Local Rot]
                 [[ 49.5, -unit*3/8,   0], [ 0,   0, -15], [ 0, 90,  0]], //PINKY 1
                 [[ 47.5, -unit*3/8,   0], [ 0,   0, -15], [ 0, 90,  0]], //PINKY 2 
                 [[ 58.0, -unit*3/8,   0], [ 0,   0, -15], [ 0, 90,  0]], //PINKY 3                 
-                [[  -82,        -2,   0], [ 0,   0,  35], [ 0, 90,  0]], //Thumb Outer 
-                [[-63.5,     -34.6,   0], [ 0,   0,   5], [ 0, 90,  0]], //Thumb OuterMid
-                [[  -46,       -44,   0], [ 0,   0,  -5], [ 0, 90,  0]], //Thumb Middle
+                [[  -95,        -2,   0], [ 0,   0,  35], [ 0, 90,  0]], //Thumb Outer 
+                [[-76.5,     -32.6,   0], [ 0,   0,   5], [ 0, 90,  0]], //Thumb OuterMid
+                [[  -50,       -44,   0], [ 0,   0,  -5], [ 0, 90,  0]], //Thumb Middle
                 [[  -28,       -47,   0], [ 0,   0, -10], [ 0, 90,  0]], //Thumb InnerMid
                 [[   -5,     -48.6,   0], [ 0,   0, -15], [ 0, 90,  0]]  //Thumb Inner              
                ];
@@ -111,7 +111,7 @@ ColumnOrigin = [//[translation vec]       [Global Rot]    [Local Rot]
 //                [[  -82,        -2,   0], [ 0,   0,  35], [ 0, 90,  0]], //Thumb Outer 
 //                [[  -56.5,   -36.8,   0], [ 0,   0,   5], [ 0, 90,  0]], //Thumb OuterMid
 //                [[  -38,       -45,   0], [ 0,   0,  -5], [ 0, 90,  0]], //Thumb Middle
-ThumbShift  = [[-0, 2, 0],[ 0, 0, 0],[ 0, 0, 0]]; //global transform for thumb cluster to jog as whole rather than editing origin
+ThumbShift  = [[3, 2, 0],[ 0, 0, 0],[ 0, 0, 0]]; //global transform for thumb cluster to jog as whole rather than editing origin
 
 //-------  and adjustment parameters 
 
@@ -121,9 +121,9 @@ RowInits    = [   R2,    R0,   R0,   R0,   R0,   R0,   R0,   R0,   R1,   R1,    
 RowEnds     = [   R2,    R2,   R2,   R2,   R2,   R2,   R1,   R1,   R1,   R1,    R1,   R1,    R1]; //set which Row to end
 
 //Row transforms
-RowTrans    = [[ -.18,  .04,  .04,  .04,  .04,   .2,   .2,   .2, -1.0,-1.25,-1.25,     0,     0], //R0
+RowTrans    = [[ -.18, -.04, -.04, -.04, -.04,  -.2,  -.2,  -.2, -1.0,-1.25,-1.25,     0,     0], //R0
                [  .80,  .80,  .80,   .8,   .8,  .75,  .75,  1.2,    0,    0,   -0, -0.02,  -.02], //R1s
-               [ 1.35, 1.56, 1.56, 1.56, 1.56, 1.84, 1.84, 1.65,    0, 1.05,    0, -0.02,     0], //R2s 
+               [ 1.35, 1.7, 1.7, 1.7, 1.7, 1.94, 1.84, 1.65,    0, 1.05,    0, -0.02,     0], //R2s 
                [ 2.90, 2.90, 2.90, 2.90, 2.90, 2.55, 2.55, 2.55,    0, 1.75,    0,     0,     0], //R3s
                [ 3.80, 3.80, 3.80, 3.80, 3.80,    1,  .83,    3,    0,    0,    0,     0,     0], //R4
                [ 4.45, 4.45, 4.45, 4.45, 4.45,    4,   -4,    4,    0,    0,    0,     0,     0]  //R5           
@@ -131,7 +131,7 @@ RowTrans    = [[ -.18,  .04,  .04,  .04,  .04,   .2,   .2,   .2, -1.0,-1.25,-1.2
 
 ColTrans    = [[    0,    0,    0,    0,    0,    0,    0,    0,    0,   .3,    0,     0,     0], //R0
                [    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0], //R1s
-               [    0,    0,    0,    0,    0, -1.0,    0,    0,    0,    0,    0,   -.4,     0], //R2s 
+               [    0,    0,    0,    0,    0, -0.8,    0,    0,    0,    0,    0,   -.4,     0], //R2s 
                [    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0], //R3s
                [    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0], //R4
                [    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0]  //R5           
@@ -224,12 +224,12 @@ TCJoints = //color "Salmon"
 //define Jointing between Thumb Cluster and Column 
 
 //-----     IGNORE IF YOU are not using Clipped switch 
-xLen         = 4;        //3.4 cut length for clipped khail  4 for MX 
+xLen         = 0;        //3.4 cut length for clipped khail  4 for MX 
 xLenM        = xLen-0;   //fudging to get cleaner border               
 //Manual Adjustment of Pitches post Calculation for minor adjustment    
 //              C0:i1 C1:i2  C2:i3   C3:m   C4:r  C5:p1  C6:p2  C7:p3  T0:Ot T1:OM T2:Md  T3:IM  T4:In
 Clipped      =[[   1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,     1,     1,    1,     1,    1],  //R0
-               [   1,     0,    -0,    -0,    -0,     1,     1,    -1,     1,     1,   -1,    -1,   -0],  //R1s
+               [   1,     1,    -1,    -1,    -1,     1,     1,    -1,     1,     1,   -1,    -1,   -0],  //R1s
                [   1,     1,     1,     1,     1,    -1,    -1,     1,     1,     1,    1,     1,    1],  //R2s 
                [   1,     1,    -1,     1,     1,     1,    -1,    -1,     1,     1,    1,     1,    1],  //R3
                [   1,     1,     1,    -1,    -1,     1,    -1,    -1,     1,     1,    1,     1,    1],  //R4
@@ -237,11 +237,11 @@ Clipped      =[[   1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,     1,   
               ]*xLen;
 
 //Orientation of the clippede switches
-ClippedOrientation = //if length-wise true 
+SwitchOrientation = //if length-wise true 
 //               C0:i1  C1:i2  C2:i3  C3:m   C4:r   C5:p1  C6:p2  C7:p3  T0:Ot T1:OM T2:Md  T3:IM  T4:In
               [[ true,  true,  true,  true,  true,  true,  true, false,  true,  true,  true,  true,  true],  
-               [ true,  true,  true,  true,  true,  true, true, false,  false, false, false,false,  true],
-               [false,  true,  true,  true,  true,  false,false,  true,  true,  true,  true, false,  true],
+               [ true,  true,  true,  true,  true,  true, true, false,  true, true, true,true,  true],
+               [false,  true,  true,  true,  true,  true, false,  true,  true,  true,  true, false,  true],
                [ true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true],
                [ true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true],
                [ true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true]

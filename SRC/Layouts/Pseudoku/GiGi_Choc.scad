@@ -104,7 +104,7 @@ MCULoc      = [5,28,5];
 resetLoc    = [0,0,0]; 
 USBLoc      = [5,28+32.5/2,6+1.2];
 
-TRRSLoc     = [-20,32,8];
+TRRSLoc     = [-20,32,7.5];
 TRRSDim     = [18,6,9];
 TRRSAng     = [0,0,90];
 

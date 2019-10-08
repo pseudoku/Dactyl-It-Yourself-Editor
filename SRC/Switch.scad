@@ -152,7 +152,7 @@ module Cutter()
   }
 }
 
-module Keyhole(tol = .1, cutThickness = .5, clipLength = 0, type = Box)
+module Keyhole(tol = .1, cutThickness = .5, clipLength = 0, type = Box, boffsets = 1)
 {
   $fn = 10;
   bottom_length = 13.9+tol;
@@ -165,7 +165,7 @@ module Keyhole(tol = .1, cutThickness = .5, clipLength = 0, type = Box)
     translate([0,0,-1.25])difference(){
       union(){
         translate([0,0,1.25])cube([holeLength, holeLength, plate_thickness+tol], center =true);
-        translate([0,0,.1-cutThickness/2])cube([holeLength+1, holeLength+1, plate_thickness+cutThickness], center =true);  
+        translate([0,0,.1-cutThickness/2])cube([holeLength+boffsets, holeLength+boffsets, plate_thickness+cutThickness], center =true);  
       }
       
       union(){
@@ -223,10 +223,22 @@ module RotaryEncoder(stemLength = 13, Wheel = 0)
  }
  color("grey")translate([0,0,7.8])cylinder(d = Wheel, stemLength);
 }
-
+module HotSwap(thickness = 3){
+ translate([0,-5.9,-1.8]){
+   cube([5,5,thickness], center = true);
+   translate([5,5.9-3.8,0])cube([5,5,thickness],center = true);
+   hull(){
+      translate([4.5/2-.25,-1,0,])cube([1,2,thickness], center = true);
+      translate([-(-5/2-.5),6.9-3.8,0])cube([1,2,thickness],center = true);
+   }
+   translate([-3.5,0,0])cube([2,2,thickness],center = true);
+   translate([8.5,5.9-3.8,0])cube([2,2,thickness],center = true);
+ }
+}
 //################ Test Calls ###################
-#Switch(switchScale= [1,1,1],clipLength = -4, type = Choc, StemColor = "purple");
-Keyhole(0, clipLength = -4, type = Box);
+//Switch(switchScale= [1,1,1],clipLength = -0, type = Choc, StemColor = "purple");
+#HotSwap();
+Keyhole(tol = -0, clipLength = -0, type = Box);
 //Stabilizer(20);
 // RotaryEncoder(Wheel = 0);
 //Switch([1,1.5,1]);
