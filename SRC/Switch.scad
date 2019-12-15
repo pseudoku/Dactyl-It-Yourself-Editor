@@ -6,7 +6,6 @@ Alps = 2;  // For Your Superiority Complex's Needs
 //Switch cutawy Type
 Cherry = 0; 
 Box    = 1; 
-Alps   = 2;
 
 //Cap type applys to MX only?
 //Cherry = 0;
@@ -18,7 +17,6 @@ MT3 = 3;
 plate_thickness = 1;
 plate_size = 15.6;
 edge_offset = 1;
-bottom_height = 5;
 bottom_size = plate_size - 2;
 
 top_height = 11.6;
@@ -65,11 +63,15 @@ module Switch(switchScale= [1,1,1], CapColor = "ivory", StemColor = "black", cli
             translate([-switch_thick/2, -switch_length/2, top_height-1])cube([switch_thick, switch_length, switch_height]);
             translate([-plate_size/4, -plate_size/6, top_height-.5])cube([plate_size/2, plate_size/3, 0.25]);
           }
-
-          scale(switchScale)color(CapColor){
-            translate([0,0,cap_heightShift-2])rotate([0,0,45])cylinder(d1 = cap_width*sqrt(2),d2 = (plate_size -4)*sqrt(2), 7.5, $fn=4, center = true);
+          if (Caps ==DSA){
+            scale(switchScale)color(CapColor){
+              translate([0,0,cap_heightShift-2])rotate([0,0,45])cylinder(d1 = cap_width*sqrt(2),d2 = (plate_size -4)*sqrt(2), 7.5, $fn=4, center = true);
+            }
+          } else if (Caps == SA){
+            scale(switchScale)color(CapColor){
+              translate([0,0,cap_heightShift])rotate([0,0,45])cylinder(d1 = cap_width*sqrt(2),d2 = (plate_size -4)*sqrt(2), 11.73, $fn=4, center = true);
+            }
           }
-
           color("grey"){
             translate([0,0, -(bottom_peg_height -bottom_peg_chamfer)]){
               cylinder(d=bottom_peg_diameter, h= bottom_peg_height -bottom_peg_chamfer);
@@ -86,7 +88,7 @@ module Switch(switchScale= [1,1,1], CapColor = "ivory", StemColor = "black", cli
         }
       }
       if (clipLength != 0){ // commiting unholy act in name of ergonomics
-        translate([0, -sign(clipLength)*7.8-clipLength,  0])scale(switchScale)cube([20, 15.6, 40], center = true);
+        translate([0, -sign(clipLength)*7.8-clipLength,  0])scale(switchScale)cube([20, 15.6, 50], center = true);
       }
     }
   } else if (type == Choc){
@@ -236,7 +238,7 @@ module HotSwap(thickness = 3){
  }
 }
 //################ Test Calls ###################
-//Switch(switchScale= [1,1,1],clipLength = -0, type = Choc, StemColor = "purple");
+Switch(switchScale= [1,1,1],clipLength = -0, type = MX, Caps = SA, StemColor = "purple");
 #HotSwap();
 Keyhole(tol = -0, clipLength = -0, type = Box);
 //Stabilizer(20);

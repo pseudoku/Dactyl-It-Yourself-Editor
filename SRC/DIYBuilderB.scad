@@ -59,25 +59,23 @@ module BuildTopPlate(keyhole = false, trackball = false, ThumbJoint = false, Bor
       BindColums(TopAlignment = BOTTOM, BufferAlignment1 = RIGHT, BufferAlignment2 = 0, cols= C4);
 //      #BindColums(TopAlignment = BOTTOM, BufferAlignment1 = 0,     BufferAlignment2 = 0, cols= C5);
 //      BindColums(TopAlignment = BOTTOM, BufferAlignment1 = LEFT,  BufferAlignment2 = RIGHT, cols= T0);
-      
-      //C1 bind
-      hull(){
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [0,BACK,0], row=R2, col=C1);
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [LEFT,BACK,0], row=R1, col=C2);
-      }
-      hull(){
-        modWeb(Hulls = true,  sides = 0, refSides = RIGHT, hullSides = [0,BACK,0],  row=R2, col=C1);
-        modWeb(Hulls = true,  sides = 0, refSides = LEFT, hullSides = [0,0,0],  row=R1, col=C2);        
-      }
-      hull(){
-        modWeb(Hulls = true,  sides = 0, refSides = RIGHT, hullSides = [0,0,0],     row=R2, col=C1);
-        modWeb(Hulls = true,  sides = 0, refSides = LEFT,  hullSides = [0,FRONT,0], row=R1, col=C2);     
-        modWeb(Hulls = true,  sides = 0, refSides = LEFT,  hullSides = [0,BACK,0],  row=R2, col=C2);     
-      }
-      hull(){
-        modWeb(Hulls = true,  sides = 0, refSides = RIGHT, hullSides = [0,FRONT,0],    row=R2, col=C1);
-        modWeb(Hulls = true,  sides = 0, refSides = LEFT,  hullSides = [0,0,0],  row=R2, col=C2);  
-      }
+      //C3 Back bind
+//      hull(){
+//        modWeb(Hulls = true,  sides = 0, refSides = RIGHT, hullSides = [RIGHT,BACK,0], row=R0, col=C2);
+//        modWeb(Hulls = true,  sides = 0, refSides = RIGHT, hullSides = [0,BACK,0], row=R0, col=C3);
+//        modWeb(Hulls = true,  sides = 0, refSides = LEFT, hullSides = [0,BACK,0], row=R0, col=C3);
+//        modWeb(Hulls = true,  sides = 0, refSides = LEFT,  hullSides = [0,BACK,0], row=R0, col=C4);     
+//      }
+      //C4 bind
+//      hull(){
+//        modWeb(Hulls = true,  sides = 0, refSides = RIGHT, hullSides = [RIGHT,FRONT,0], row=R1, col=C4);
+//        modWeb(Hulls = true,  sides = 0, refSides = LEFT,  hullSides = [0,FRONT,0], row=R1, col=C5);     
+//        modWeb(Hulls = true,  sides = 0, refSides = LEFT,  hullSides = [0,BACK,0],  row=R2, col=C5);     
+//      }
+//      hull(){
+//        modWeb(Hulls = true,  sides = 0, refSides = RIGHT, hullSides = [RIGHT,FRONT,0],    row=R1, col=C4);
+//        modWeb(Hulls = true,  sides = 0, refSides = LEFT,  hullSides = [0,0,0],  row=R2, col=C5);  
+//      }
       //T1 bind
       hull(){
         modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [RIGHT,0,0], row=R2, col=T0);
@@ -909,7 +907,7 @@ module BuildBottomEnclosure(struct = Eborder, JackType = true, MCUType = true)
       }
     
       if(JackType == "RJ45"){
-        translate(JackLoc+[-7,0,0])rotate(JackAng+[0,0,0])cube([15.24+3,5,15+3], center= true);  
+        translate(JackLoc+[0,0,0])rotate(JackAng+[0,0,0])translate([0,3,0])cube([15.24+3,5,15+3], center= true);  
       }  
     }  
     //CUTS
@@ -922,7 +920,7 @@ module BuildBottomEnclosure(struct = Eborder, JackType = true, MCUType = true)
 //      translate(JackLoc)rotate(JackAng)cube(JackDim, center = true);
       translate(JackLoc+[0,14,0])rotate(JackAng+[90,0,90])cylinder(d = 8, 15, center= true);
     } else if(JackType == "RJ45"){
-      #translate(JackLoc+[0,0,0])rotate(JackAng+[0,0,0])cube([15.24,20.75,15], center= true);  
+      #translate(JackLoc+[0,0,0])rotate(JackAng+[0,0,0])translate([0,-4,0])cube([15.24,20.75,15], center= true);  
     }
     
     if(MCUType == true){
@@ -1205,7 +1203,7 @@ module TrackBall(){
      palm_track();
      rotate(SensorRot)translate([0,0,-trackR+1])cube(PCBCaseDim,center= true); // pcb housing
     }
-    rotate(SensorRot)translate([0,0,-38/2])PCB();
+    rotate(SensorRot)translate([0,0,-36/2])PCB();
 //    #rotate(SensorRot)translate([0,0,-42/2])cylinder(d =1, 100); orientation check
   }
 }
