@@ -4,13 +4,13 @@ Choc = 1;  // Low profile
 Alps = 2;  // For Your Superiority Complex's Needs
 
 //Switch cutawy Type
-Cherry = 0; 
-Box    = 1; 
+Cherry = 2; // for indent clip key cuts
 
 //Cap type applys to MX only?
 //Cherry = 0;
 DSA = 1;
-SA  = 2;
+OEM = 2;
+SA  = 4;
 MT3 = 3;
 
 //parameters
@@ -67,7 +67,42 @@ module Switch(switchScale= [1,1,1], CapColor = "ivory", StemColor = "black", cli
             scale(switchScale)color(CapColor){
               translate([0,0,cap_heightShift-2])rotate([0,0,45])cylinder(d1 = cap_width*sqrt(2),d2 = (plate_size -4)*sqrt(2), 7.5, $fn=4, center = true);
             }
-          } else if (Caps == SA){
+          } else if (Caps == OEM){
+              if( Row == 0) {
+                scale(switchScale)color(CapColor){
+                  translate([0,0,cap_heightShift/2+2])
+                    hull(){
+                      cube([18,18,.001], center = true);
+                      translate([0,1,(10.1+7.9)/2])rotate([atan((7.9-10.1)/14.5),0,0])cube([13.5,14.5,.001], center = true);
+                  }
+                }
+              } else if( Row == 1) {
+                scale(switchScale)color(CapColor){
+                  translate([0,0,cap_heightShift/2+2])
+                    hull(){
+                      cube([18,18,.001], center = true);
+                      translate([0,1,(8+9.3)/2])rotate([atan((8-9.3)/14.5),0,0])cube([13.5,14.5,.001], center = true);
+                  }
+                }
+              } else if( Row == 2) {
+              scale(switchScale)color(CapColor){
+                  translate([0,0,cap_heightShift/2+2])
+                    hull(){
+                      cube([18,18,.001], center = true);
+                      translate([0,1,(9+9.3)/2])rotate([atan((9-9.3)/14.5),0,0])cube([13.5,14.5,.001], center = true);
+                  }
+                }
+              } else if( Row == 3) {
+                scale(switchScale)color(CapColor){
+                  translate([0,0,cap_heightShift/2+2])
+                    hull(){
+                      cube([18,18,.001], center = true);
+                      translate([0,1,(11.4+10.8)/2])rotate([atan((11.4-10.8)/14.5),0,0])cube([13.5,14.5,.001], center = true);
+                  }
+                }
+              }
+          }
+          else if (Caps == SA){
             scale(switchScale)color(CapColor){
               translate([0,0,cap_heightShift])rotate([0,0,45])cylinder(d1 = cap_width*sqrt(2),d2 = (plate_size -4)*sqrt(2), 11.73, $fn=4, center = true);
             }
@@ -154,16 +189,17 @@ module Cutter()
   }
 }
 
-module Keyhole(tol = .1, cutThickness = .5, clipLength = 0, type = Box, boffsets = 1)
+module Keyhole(tol = .1, cutThickness = .5, clipLength = 0, type = MX, boffsets = 1)
 {
   $fn = 10;
-  bottom_length = 13.9+tol;
-   plate_thickness = 3.51; //mm
+  bottom_length = 13.9; //should be 14 for mx
+  plate_thickness = 3.51; //mm
   holeLength = bottom_length+tol*2;
+  holeLenghtChoc = 13.8+tol*2;
   //latch nibs
   nib_radius= 1;
   nib_length = 3;
-  if(type == Box){
+  if(type == MX){
     translate([0,0,-1.25])difference(){
       union(){
         translate([0,0,1.25])cube([holeLength, holeLength, plate_thickness+tol], center =true);
@@ -176,6 +212,19 @@ module Keyhole(tol = .1, cutThickness = .5, clipLength = 0, type = Box, boffsets
         }
       }
     }
+   } else if(type == Choc){
+    translate([0,0,-1.25])difference(){
+      union(){
+        translate([0,0,1.25])cube([holeLenghtChoc, holeLenghtChoc, plate_thickness+tol], center =true);
+        translate([0,0,.1-cutThickness/2])cube([holeLength+boffsets, holeLength+boffsets, plate_thickness+cutThickness], center =true);  
+      }
+      
+      union(){
+        if (clipLength != 0){
+          translate([0, -sign(clipLength)*7.8-clipLength, 0])cube([20, 15.6, 40], center = true);
+        }
+      }
+  }
   } else if (type == Cherry){
     difference(){
       translate([0,0,-cutThickness/2])cube( [holeLength, holeLength, plate_thickness+cutThickness], center =true);
@@ -238,9 +287,12 @@ module HotSwap(thickness = 3){
  }
 }
 //################ Test Calls ###################
-Switch(switchScale= [1,1,1],clipLength = -0, type = MX, Caps = SA, StemColor = "purple");
-#HotSwap();
-Keyhole(tol = -0, clipLength = -0, type = Box);
+Switch(switchScale= [1,1,1],clipLength = -0, type = MX, Caps = OEM, StemColor = "purple", Row = 0);
+translate([0,20,0])Switch(switchScale= [1,1,1],clipLength = -0, type = MX, Caps = OEM, StemColor = "purple", Row = 1);
+translate([0,40,0])Switch(switchScale= [1,1,1],clipLength = -0, type = MX, Caps = OEM, StemColor = "purple", Row = 2);
+translate([0,60,0])Switch(switchScale= [1,1,1],clipLength = -0, type = MX, Caps = OEM, StemColor = "purple", Row = 3);
+//#HotSwap();
+Keyhole(tol = -0, clipLength = -0, type = MX);
 //Stabilizer(20);
 // RotaryEncoder(Wheel = 0);
 //Switch([1,1.5,1]);

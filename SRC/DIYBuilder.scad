@@ -7,18 +7,39 @@ use <scad-utils/shapes.scad>
 use <scad-utils/trajectory.scad>
 use <scad-utils/trajectory_path.scad>
 use <skin.scad>  
-// Add hotswap 
-// add daughter board
-// add mcu
-// add cuts at corner top plate
-// add webbing on pinkie cluster
+/*
+//TODOs 
+
+* separate var for screw and thread insets
+* consolidate functions and modules
+* mcu/trrs/ locations and dim needs to be global and local
+* cleaner framework for buildint enclosure???
+* update major layouts to work with new build calls. 
+
+*/
+module rotate(angle)            // built-in rotate is inaccurate for 90 degrees, etc
+{
+ a = len(angle) == undef ? [0, 0, angle] : angle;
+ cx = cos(a[0]);
+ cy = cos(a[1]);
+ cz = cos(a[2]);
+ sx = sin(a[0]);
+ sy = sin(a[1]);
+ sz = sin(a[2]);
+ multmatrix([
+  [ cy * cz, cz * sx * sy - cx * sz, cx * cz * sy + sx * sz, 0],
+  [ cy * sz, cx * cz + sx * sy * sz,-cz * sx + cx * sy * sz, 0],
+  [-sy,      cy * sx,                cx * cy,                0],
+  [ 0,       0,                      0,                      1]
+ ]) children();
+}
 
 //################ Main Builder ############################
-module BuildTopPlate(keyhole = false, trackball = false, ThumbJoint = false, Border = false, PrettyBorder = false, ColoredSection = false,CustomBorder = false)
+module BuildTopPlate(Keyhole = false, Enclosure = true, Trackball = false, ThumbJoint = false, Border = false, PrettyBorder = false, ColoredSection = false,CustomBorder = false)
 {
   //Submodules 
   //TODO: change scope of submodules and remove duplicates now that calls are merged
-  module modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [0,0,0], row, col){//shorthand
+  module modPlate (Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [0,0,0], row, col){//shorthand
   
     if (SwitchOrientation[row][col] == true){
       PlaceRmCn(row, col)scale([CapScale[row][col],1,1])modulate(PlateDim,[0,sign(Clipped[row][col]), sides],PlateDim-[0,abs(Clipped[row][col]),-PBuffer-thickBuff], [0,-sign(Clipped[row][col]),refSides], Hull = Hulls, hullSide = hullSides);
@@ -28,7 +49,7 @@ module BuildTopPlate(keyhole = false, trackball = false, ThumbJoint = false, Bor
     }
   }
   
-  module modWeb(Hulls = true,  sides = 0, refSides = 0, hullSides = [0,0,0], row, col){
+  module modWeb (Hulls = true,  sides = 0, refSides = 0, hullSides = [0,0,0], row, col){
   if(SwitchOrientation[row][col] == true){
     PlaceRmCn(row, col)scale([CapScale[row][col],1,1])modulate(PlateDim+[0,-abs(Clipped[row][col])*2,PBuffer*2], [refSides,sides,TOP],PlateDim+[-WebThickness,-abs(Clipped[row][col]),PBuffer], [-refSides,-sides,BOTTOM], Hull = Hulls, hullSide = hullSides);
   }else {
@@ -40,150 +61,106 @@ module BuildTopPlate(keyhole = false, trackball = false, ThumbJoint = false, Bor
   //Builds
   difference(){
     union(){
-      for (cols = colRange){// build main plate objects
-        BuildColumn(PlateDim[2]+PBuffer, 0, BOTTOM, col = cols, rowInit = RowInits[cols], rowEnd = RowEnds[cols]); //builds plate 
-
-        //build webbing between Columns
-        if(ColumnOrigin[cols+1][0][0]-ColumnOrigin[cols][0][0] < PlateDim[0]){//column separation are larger than the boundary  
-//          BindColums(TopAlignment = BOTTOM, BufferAlignment1 = 0, BufferAlignment2 = 0, cols= cols);
-        } else {
-//          BindColums(TopAlignment = BOTTOM, BufferAlignment1 = RIGHT, BufferAlignment2 = 0, cols= cols);
-        }
-        //extra web
-      }      
-      
-/*ad hoc column webbing for asymplex TODO: offload this to layout file*/
-//      BindColums(TopAlignment = BOTTOM, BufferAlignment1 = RIGHT, BufferAlignment2 = 0, cols= C1);
-      BindColums(TopAlignment = BOTTOM, BufferAlignment1 = 0,      BufferAlignment2 = LEFT, cols= C2);
-      BindColums(TopAlignment = BOTTOM, BufferAlignment1 = RIGHT, BufferAlignment2 = 0, cols= C3);
-      BindColums(TopAlignment = BOTTOM, BufferAlignment1 = RIGHT, BufferAlignment2 = 0, cols= C4);
-//      #BindColums(TopAlignment = BOTTOM, BufferAlignment1 = 0,     BufferAlignment2 = 0, cols= C5);
-//      BindColums(TopAlignment = BOTTOM, BufferAlignment1 = LEFT,  BufferAlignment2 = RIGHT, cols= T0);
-      
-      //C1 bind
-      hull(){
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [0,BACK,0], row=R2, col=C1);
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [LEFT,BACK,0], row=R1, col=C2);
-      }
-      hull(){
-        modWeb(Hulls = true,  sides = 0, refSides = RIGHT, hullSides = [0,BACK,0],  row=R2, col=C1);
-        modWeb(Hulls = true,  sides = 0, refSides = LEFT, hullSides = [0,0,0],  row=R1, col=C2);        
-      }
-      hull(){
-        modWeb(Hulls = true,  sides = 0, refSides = RIGHT, hullSides = [0,0,0],     row=R2, col=C1);
-        modWeb(Hulls = true,  sides = 0, refSides = LEFT,  hullSides = [0,FRONT,0], row=R1, col=C2);     
-        modWeb(Hulls = true,  sides = 0, refSides = LEFT,  hullSides = [0,BACK,0],  row=R2, col=C2);     
-      }
-      hull(){
-        modWeb(Hulls = true,  sides = 0, refSides = RIGHT, hullSides = [0,FRONT,0],    row=R2, col=C1);
-        modWeb(Hulls = true,  sides = 0, refSides = LEFT,  hullSides = [0,0,0],  row=R2, col=C2);  
-      }
-      //T1 bind
-      hull(){
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [RIGHT,0,0], row=R2, col=T0);
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [LEFT,0,0], row=R2, col=T1);
-      }   
-      hull(){
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [0,BACK,0], row=R2, col=T0);
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [LEFT,BACK,0], row=R2, col=T1);
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [LEFT,FRONT,0], row=R1, col=T1);
-      }   
-      // other
-      hull(){
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [RIGHT,0,0], row=R1, col=C2);
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [RIGHT,BACK,0], row=R2, col=C2);
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [LEFT,0,0], row=R1, col=C3);
-      }
-      
-      hull(){
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [LEFT,0,0], row=R1, col=C5);
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [LEFT,BACK,0], row=R2, col=C5);
-        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [RIGHT,0,0], row=R1, col=C4);
-      }
-      
-/* End of ad hoc*/
-      
-      // todo call thum joint here for plate only builds?
-      //----- Borders
-      PaintColor(ColoredSection){        
-        if (Border == true )BuildTopEnclosure(bBotScale = RScale); //for easier debugging
-        if (PrettyBorder == true)BuildPrettyTransition(bBotScale = RScale);
-        if (CustomBorder == true){
-          color("Crimson")BuildCustomBorder(struct = Sborder);
-//          color("DarkGreen")BuildAdditionaltEdge(struct = Lborder, sides = LEFT);   //Catch uncaught Left Top Border
-//          color("YellowGreen")BuildAdditionaltEdge(struct = Rborder, sides = RIGHT);  //Catch uncaught Left Top Border
-        }
-        if (ThumbJoint == true)color("Salmon")BuildCustomBorder(struct = TCJoints);       
-        if (trackball == true){
-          color("Yellow")BuildTrackBorder(struct = TBborder);
-          translate(trackOrigin)rotate(trackTilt)TrackBall();
-        }
-      }
-      
-    }//end build union
-    //CUTS
-   
-    // Remove inter-columnar artifacts from borders and web joints
-//      for( cols = [C5, T0, T1]){
-      BindTopCuts(Struct = TopCuts, height = 1);
-//      }
-    
-//       #hull(){
-//        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [0,0,BOTTOM], row=R2, col=T1);
-////        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [LEFT,BACK,0], row=R2, col=C5);
-//        modPlate(Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [0,0,BOTTOM], row=R1, col=C1);
-//      }
-    // Keyholes
-    if(keyhole == true){ //Column Section
-      for(cols = colRange){
-        for(rows = [RowInits[cols]:RowEnds[cols]]){
-          PlaceRmCn(rows, cols){
-            if(SwitchOrientation[rows][cols] == true){
-              Keyhole(tol = 0, clipLength = Clipped[rows][cols], cutThickness = 2, type = Box, boffsets = holeOffset);
-            }else {
-              rotate([0,0,-90])Keyhole(tol = 0, clipLength = Clipped[rows][cols], cutThickness = 2, type = Box, boffsets = holeOffset);
+      rotate(tenting)translate([0,0,plateHeight]){//move plate to tent positions
+        for (cols = colRange)BuildColumn(PlateDim[2]+PBuffer, 0, BOTTOM, col = cols, rowInit = RowInits[cols], rowEnd = RowEnds[cols]);
+        //plate binding is done via layouts. most cases require custom config and generalization does not suffice. if it does than just use dactyl
+        for (i=[0:len(PBind)-1])BindColums(TopAlignment = BOTTOM, BufferAlignment1 = PBind[i][1], BufferAlignment2 = PBind[i][2], cols= PBind[i][0]);
+        for (i=[0:len(PlateCustomBind)-1]){
+          hull(){
+            for (j = [0:len(PlateCustomBind[i])-1]){
+              modWeb(Hulls = true,  sides = PlateCustomBind[i][j][4], refSides = PlateCustomBind[i][j][2], hullSides = PlateCustomBind[i][j][3], row=PlateCustomBind[i][j][1], col=PlateCustomBind[i][j][0]);
             }
           }
-        }     
+        }
+      
+        //----- Borders
+        PaintColor(ColoredSection){        
+          if (Border == true )BuildTopEnclosure(bBotScale = RScale); //for easier debugging
+  //      if (PrettyBorder == true)BuildPrettyTransition(bBotScale = RScale); // it never worked well on edge cases which is 99% of my build
+          if (CustomBorder == true){color("Crimson")BuildCustomBorder(struct = Sborder);}
+          if (ThumbJoint == true)color("Salmon")BuildCustomBorder(struct = TCJoints);       
+          if (Trackball == true){
+            color("Yellow")BuildTrackBorder(struct = TBborder);
+            translate(trackOrigin)rotate(trackTilt)TrackBall();
+          }
+        }  
       }
-      //cuttting switch top to remove artifacts 
-      for(cols = colRange){
-        BuildColumn(PlateDim[2]+PBuffer+10, 0, TOP, col = cols, rowInit = RowInits[cols], rowEnd = RowEnds[cols]);  
-//          BindColums(TopAlignment =TOP, BufferAlignment = RIGHT, cols= cols);
-      }
-      if (trackball == true){
-//          translate(trackOrigin)rotate(trackTilt)sphere(d=trackR*2+1.25);
-      }
-      //PCB mount
-//        for(cols = [CStart:CEnd])PlaceRmCn(PM,cols)cylinder(d=3, 20, center = true); 
+      //enclosure 
+      if(Enclosure == true)color("lightpink")BuildBottomEnclosure(struct = Eborder, Mount = true, JackType = "TRRS", MCUType = true);
+    }//end build union
+    //CUTS
+    // Remove inter-columnar artifacts from borders and web joints
+    BindTopCuts(Struct = TopCuts, height = 1);
+    
+    // Keyholes
+    if(Keyhole == true)rotate(tenting)translate([0,0,plateHeight])BuildKeyWells(); //cuttting keywell and switch top to remove artifacts 
+    if (Trackball == true){
+          translate(trackOrigin)rotate(trackTilt)sphere(d=trackR*2+1.25);  //cuts must be after building enclosures
+      
+/* TODOs track ball modules 
+//    translate(JackLoc+[0,0,0])rotate(JackAng+[0,0,0])translate([0,-4,0])cube([15.24,20.75,15], center= true); // additional cut 
+//    translate([0,0,-1])cube([150,150,2], center = true);
+//    #rotate(tenting)translate([0,0,plateHeight])translate(trackOrigin)rotate(trackTilt)color("royalblue"){     
+//      sphere(d=trackR*2+1.25,$fn= 64);
+//        //bearing holes
+//      for(i= [0:1])rotate([0,50,120*i+30]){//upper bearing for tighter fit?
+//        #translate([trackR+rbearing,0,0])sphere(r=rbearing); 
+//        #translate([trackR+rbearing-1,0,0])rotate([0,90,0])cylinder(r=rbearing,1); 
+//      }
+//      for(i= [0:0])rotate([0,-30,180*i-90])translate([trackR+rbearing,0,0]){
+//        #sphere(r=rbearing); //upper bearing for tighter fit?
+//        #translate([-1,0,0])rotate([0,90,0])cylinder(r=rbearing,1);
+//      }
+      
+//      translate(MCULoc+[0,-2.5,-7])cube([23.5,37.5,3],center=true);
+//    }
+//    translate(MCULoc+[-2.5,5-32.5/2,0])cylinder(d = 3, 30, center = true);
+//}  
+//translate(JackLoc+[2.5,0,-6.5])cube([23,11,3],center=true);
+
+//    #rotate(tenting)translate([0,0,plateHeight])translate(trackOrigin)rotate(trackTilt)rotate(SensorRot)translate([0,0,-38/2])PCB();
+////  } 
+
+
+//     rotate(tenting)translate([0,0,plateHeight]){ BuildSet(capType = MX, capType = 1, colors = "ivory", stemcolor = "lightGreen",switchH = 0);} //(switchH = 0 for mx platethicknes 3.5, for -.75 for 2 )
+
+//}
+*/
     }
+      
+    if(Enclosure == true && BottomPlateCuts == true)BuildBottomPlate(struct = Eborder, hullList = Hstruct, Mount = false, JackType = false, MCUType = false); // cutout bottod plate outline to make them incertable
+      
+    //Tray Mount
+      // big if
+    //PCB mount
+      // like-wise
   }
 }
 
 //----- Supporting Modules for Main Builder Modules
 
 //----  functions
-function hadamard(a, b) = !(len(a) > 0) ? a*b : [ for (i = [0:len(a) - 1]) hadamard(a[i], b[i])]; // elementwise mult
-function rowRange(col) = [RowInits[col]:RowEnds[col]]; // shorthand for row loop range 
+function hadamard (a, b) = !(len(a) > 0) ? a*b : [ for (i = [0:len(a) - 1]) hadamard(a[i], b[i])]; // elementwise mult
+function rowRange (col) = [RowInits[col]:RowEnds[col]]; // shorthand for row loop range 
 
 //cal global y position without considering rotation for quick condition check
-function BRowYPos(i) = ColumnOrigin[i][0][1]+RowTrans[RowInits[i]][i];
-function FRowYPos(i) = ColumnOrigin[i][0][1]+RowTrans[RowEnds[i]][i];
-function FRowZPos(i) = ColumnOrigin[i][0][1]+Height[RowEnds[i]][i];
+function BRowYPos (i) = ColumnOrigin[i][0][1]+RowTrans[RowInits[i]][i];
+function FRowYPos (i) = ColumnOrigin[i][0][1]+RowTrans[RowEnds[i]][i];
+function FRowZPos (i) = ColumnOrigin[i][0][1]+Height[RowEnds[i]][i];
 
 //----  Transformations and Modulating cube
-module hullPlate(referenceDimensions = [0,0,0], offsets = [0,0,0], scalings = [1,1,1]) //Convenient notation for hulling a cube by face/edge/vertex
+module hullPlate (referenceDimensions = [0,0,0], offsets = [0,0,0], scalings = [1,1,1]) //Convenient notation for hulling a cube by face/edge/vertex
 { 
   hullDimension = [
     offsets[0] == 0 ?  scalings[0]*referenceDimensions[0]:HullThickness, // x
     offsets[1] == 0 ?  scalings[1]*referenceDimensions[1]:HullThickness, // y
     offsets[2] == 0 ?  scalings[2]*referenceDimensions[2]:HullThickness, // z
   ];
-  
+
   translate(hadamard(referenceDimensions, offsets/2))translate(hadamard(hullDimension, -offsets/2))cube(hullDimension, center = true);
 } 
 
-module modulate(referenceDimension = [0,0,0], referenceSide = [0,0,0], objectDimension = [0,0,0], objectSide = [0,0,0], Hull = false, hullSide = [0,0,0], scalings = [1,1,1]){//Convinient cube transferomation and hulling ref
+module modulate (referenceDimension = [0,0,0], referenceSide = [0,0,0], objectDimension = [0,0,0], objectSide = [0,0,0], Hull = false, hullSide = [0,0,0], scalings = [1,1,1]){//Convinient cube transferomation and hulling ref
   if(Hull == false){
     translate(hadamard(referenceDimension, referenceSide/2))
       translate(hadamard(hadamard(objectDimension,scalings),objectSide/2))
@@ -226,23 +203,19 @@ module PlaceRmCn(row, col) {
           children();
 }
 
-//module OutRmCn(row, col) {
-//    PlaceColumnOrigin(col)
-//    [RowTrans[row][col],Height[row][col]+PlateThickness/2,ColTrans[row][col]]
-//  
-//}
+
 //--- Building Modules 
-module BuildColumn(plateThickness, offsets, sides =TOP, col=0, rowInit = R0, rowEnd = R0){//generate switch plates and hull in between between per column 
+module BuildColumn (plateThickness, offsets, sides =TOP, col=0, rowInit = R0, rowEnd = R0, offset2 = 0, adjust = 0){//generate switch plates and hull in between between per column 
   refDim   = PlateDim +[0,0,offsets];
-  buildDim = [PlateDim[0], PlateDim[1], plateThickness];
+  buildDim = [PlateDim[0]-offset2, PlateDim[1], plateThickness];
   
   //TODO: Refactor all modplate type calls 
-  module modPlateLen(Hulls = true, hullSides = [0,0,0], rows, cols){//shorthand call for length-wise clipping 
-    modulate(refDim,[0,sign(Clipped[rows][cols]),TOP], buildDim-[0,abs(Clipped[rows][cols]),0], [0,-sign(Clipped[rows][cols]),sides], Hull = Hulls, hullSide = hullSides);
+  module modPlateLen (Hulls = true, hullSides = [0,0,0], rows, cols){//shorthand call for length-wise clipping 
+    modulate(refDim,[adjust,sign(Clipped[rows][cols]),TOP], buildDim-[0,abs(Clipped[rows][cols]),0], [0,-sign(Clipped[rows][cols]),sides], Hull = Hulls, hullSide = hullSides);
     //use clip length sign to direct transform sides and adjust platle length rather than if else statement for more compact call 
   }
   
-  module modPlateWid(Hulls = true, hullSides = [0,0,0], rows, cols){//shorthand call for Width-wise clipping
+  module modPlateWid (Hulls = true, hullSides = [0,0,0], rows, cols){//shorthand call for Width-wise clipping
     modulate(refDim,[sign(Clipped[rows][cols]), 0, TOP], buildDim-[abs(Clipped[rows][cols]),0,0], [-sign(Clipped[rows][cols]), 0,sides], Hull = Hulls, hullSide = hullSides);
   }
   
@@ -276,13 +249,14 @@ module BuildColumn(plateThickness, offsets, sides =TOP, col=0, rowInit = R0, row
   }
 }
 
-module BindColums(TopAlignment =TOP, BufferAlignment1 = 0,  BufferAlignment2 = 0, cols=0, plateThickness = PlateDim[2], offsets = 0){//Build support structure between columns, Buffers side option to aligne hull surface 
+module BindColums (TopAlignment =TOP, BufferAlignment1 = 0,  BufferAlignment2 = 0, cols=0, plateThickness = PlateDim[2], offsets = 0){//Build support structure between columns, Buffers side option to aligne hull surface 
   refDim   = PlateDim +[0,0,offsets];
   buildDim = [PlateDim[0], PlateDim[1], plateThickness];
   
   function Sides(r, c)  = SwitchOrientation[r][c]?-sign(Clipped[r][c]):0;
   function SideMod(r,c, refsides) = (!SwitchOrientation[r][c] && refsides == sign(Clipped[r][c]))?0:1;
-  module modWeb(Hulls = true,  sides = 0, refSides = 0, hullSides = [0,0,0], row, col){
+  
+  module modWeb (Hulls = true,  sides = 0, refSides = 0, hullSides = [0,0,0], row, col){
     if(SwitchOrientation[row][col] == true){
       PlaceRmCn(row, col)scale([CapScale[row][col],1,1])modulate(refDim+[0,-abs(Clipped[row][col])*2,PBuffer*2], [refSides,sides,TOP],buildDim+[-WebThickness,-abs(Clipped[row][col]),PBuffer], [-refSides,-sides,TopAlignment], Hull = Hulls, hullSide = hullSides);
     }else {
@@ -290,6 +264,7 @@ module BindColums(TopAlignment =TOP, BufferAlignment1 = 0,  BufferAlignment2 = 0
     }
   }
   
+  //build start
   if (cols != CEnd && cols != TEnd){//Hull Between Columns TODO: Modulize 
     for(rows = [max(RowInits[cols],RowInits[cols+1]):min(RowEnds[cols],RowEnds[cols+1])]){//build only nearest
       hull(){
@@ -340,12 +315,12 @@ module BindTopCuts(Struct = TopCuts, height = 0) {
   buildDim = [PlateDim[0], PlateDim[1], plateThickness];
   
   //TODO: Refactor all modplate type calls 
-  module modPlateLen(Hulls = true, hullSides = [0,0,0], rows, cols){//shorthand call for length-wise clipping 
+  module modPlateLen (Hulls = true, hullSides = [0,0,0], rows, cols){//shorthand call for length-wise clipping 
     modulate(refDim,[0,sign(Clipped[rows][cols]),TOP], buildDim-[0,abs(Clipped[rows][cols]),0], [0,-sign(Clipped[rows][cols]),sides], Hull = Hulls, hullSide = hullSides);
     //use clip length sign to direct transform sides and adjust platle length rather than if else statement for more compact call 
   }
   
-  module modPlateWid(Hulls = true, hullSides = [0,0,0], rows, cols){//shorthand call for Width-wise clipping
+  module modPlateWid (Hulls = true, hullSides = [0,0,0], rows, cols){//shorthand call for Width-wise clipping
     modulate(refDim,[sign(Clipped[rows][cols]), 0, TOP], buildDim-[abs(Clipped[rows][cols]),0,0], [-sign(Clipped[rows][cols]), 0,sides], Hull = Hulls, hullSide = hullSides);
   }
   for (i = [0:len(Struct)-1]){
@@ -394,6 +369,29 @@ module modBorderWid(Hulls = false, sides = 0, refSides = 0, dimClip = 0, refClip
     PlaceRmCn(rows, cols)scale([1,CapScale[rows][cols],1])modulate(PlateDim+[-refClip*2,0,PBuffer*2], [refSides,sides, BorderAlign ],PlateDim+[-Bthickness,-dimClip,height], [refSides,-sides,-BorderAlign], Hull = Hulls, hullSide = [hullSides[0],hullSides[1],BOTTOM], scalings = scaling);}
 }
 
+
+module modBottomLen(Hulls = false, sides = 0, refSides = 0, dimClip = 0, refClip = 0, height = 6, hullSides = [0,0,0], rows, cols, scaling = [1,1,1]){
+
+  if (SwitchOrientation[rows][cols] == true){ // no need to scale 
+    //BOTTOM
+    PlaceRmCn(rows, cols)scale([CapScale[rows][cols],1,1])modulate(PlateDim+[0,-refClip*2,PBuffer*2], [refSides,sides, BorderAlign ],PlateDim+[-dimClip,-Bthickness,height], [-refSides,sides,-BorderAlign ], Hull = Hulls, hullSide = [hullSides[0],hullSides[1],BOTTOM], scalings = scaling);
+  } else { // scale 
+    //BOTTOM
+    PlaceRmCn(rows, cols)modulate(hadamard(PlateDim,[1,CapScale[rows][cols],1])+[0,-refClip*0,PBuffer*2], [refSides,sides, BorderAlign ],PlateDim+[-dimClip,-Bthickness,height], [-refSides,sides,-BorderAlign ], Hull = Hulls, hullSide = [hullSides[0],hullSides[1],BOTTOM], scalings = scaling);
+  }
+}
+
+//Modulate shorthand for building Width-Wise hulls for Borders
+module modBottomWid(Hulls = false, sides = 0, refSides = 0, dimClip = 0, refClip = 0, height = 6, hullSides = [0,0,0], rows, cols, scaling = [1,1,1]){
+  if (SwitchOrientation[rows][cols] == true){ //no need to scale cap size
+    //BOTTOM
+    PlaceRmCn(rows, cols)modulate(hadamard(PlateDim,[CapScale[rows][cols],1,1])+[-refClip*2,0,PBuffer*2], [refSides,sides, BorderAlign],PlateDim+[-Bthickness,-dimClip,height], [refSides,-sides,-BorderAlign], Hull = Hulls, hullSide = [hullSides[0],hullSides[1],BOTTOM], scalings = scaling);
+  } else { //scale to cap size
+    //BOTTOM
+    PlaceRmCn(rows, cols)scale([1,CapScale[rows][cols],1])modulate(PlateDim+[-refClip*2,0,PBuffer*2], [refSides,sides, BorderAlign ],PlateDim+[-Bthickness,-dimClip,height], [refSides,-sides,-BorderAlign], Hull = Hulls, hullSide = [hullSides[0],hullSides[1],BOTTOM], scalings = scaling);}
+}
+
+
 module buildCorner(row = R0, col = C0, side1 = FRONT, side2 = LEFT, BHeight = BBackHeight, bBotScale = RScale){
   hull(){
     modBorderWid(true,     0, side2, 0, xLenM*abs(sign(Clipped[row][col])), BHeight, [0,side1,0], row, col, [bBotScale,1,1]);
@@ -402,36 +400,7 @@ module buildCorner(row = R0, col = C0, side1 = FRONT, side2 = LEFT, BHeight = BB
 }
 
 module BuildAdditionaltEdge(struct = Lborder, sides = LEFT, bBotScale = RScale){ //use border struc to biuld Left Edge
-  for (row = [0:len(struct)-1]){
-    for (i = [0:len(struct[row])-1]){
-      if(row == RowEnds[struct[row][i]]){ //if at the Max Row of a column add height transition
-        hull(){
-          modBorderWid(true, 0, sides, 0, xLenM*abs(sign(Clipped[row][struct[row][i]])), BFrontHeight, [0,FRONT,0], row, struct[row][i], [bBotScale,1,1]);
-          modBorderWid(true, 0, sides, 0, xLenM*abs(sign(Clipped[row][struct[row][i]])), BBackHeight,   [0,BACK,0], row, struct[row][i], [bBotScale,1,1]);
-        }
-      } else { 
-        hull(){
-          modBorderWid(true, 0, sides, 0, xLenM*abs(sign(Clipped[row][struct[row][i]])), BBackHeight, [0,0,0], row, struct[row][i], [bBotScale,1,1]);
-        }
-      } 
-      if (len(search(struct[row][i],struct[row+1])) > 0){ // check if next row has matching column 
-        hull(){
-          modBorderWid(true, 0, sides, 0, xLenM*abs(sign(Clipped[row][struct[row][i]])), BBackHeight, [0,FRONT,0], row, struct[row][i], [bBotScale,1,1]);
-          modBorderWid(true, 0, sides, 0, xLenM*abs(sign(Clipped[row+1][struct[row][i]])), BBackHeight,  [0,BACK,0], row+1, struct[row][i], [bBotScale,1,1]);
-        }
-      }
-      if (RowInits[struct[row][i]] == row){ // codition col min
-//        hull(){
-//          modBorderWid(true,    0, sides, 0, xLenM, BBackHeight,  [0,BACK,0], row, struct[row][i], [bBotScale,1,1]);
-//          modBorderLen(true, BACK,     0, 0, xLenM, BBackHeight,  [sides,0,0], row, struct[row][i], [1,bBotScale,1]);
-//        }  
-        buildCorner(row, struct[row][i], BACK, sides, BBackHeight, RScale);
-      }
-      if (RowEnds[struct[row][i]] == row){ // codition col max match 
-        buildCorner(row, struct[row][i], FRONT, sides, BFrontHeight, RScale);
-      }
-    }
-  }
+//depriciated 
 }
 
 module BuildCustomBorder(struct = Sborder){// use Sborder struc to build hull.
@@ -443,15 +412,16 @@ module BuildCustomBorder(struct = Sborder){// use Sborder struc to build hull.
   function WidSides(i,j) = !SwitchOrientation[Row(i,j)][Col(i,j)]?0:sign(Clipped[Row(i,j)][Col(i,j)]);
   function SideMod(i,j) = (SwitchOrientation[Row(i,j)][Col(i,j)] && struct[i][j][3] == sign(Clipped[Row(i,j)][Col(i,j)]))?0:1;
   function SideMod2(i,j) = (SwitchOrientation[Row(i,j)][Col(i,j)] || struct[i][j][3] == sign(Clipped[Row(i,j)][Col(i,j)]))?0:1;
+  function HeightCheck(n,m) = Col(n,m)>C7?TBackHeight:BBackHeight;
   
   for (i = [0:len(struct)-1]){
     hull(){
       //[Col, Row, len = true, Jog direction, HullFace, Scale], 
       for (j = [0:len(struct[i])-1]){
         if (struct[i][j][2] == true){
-          modBorderWid(true, WidSides(i,j), struct[i][j][3], WidCheck(i,j), xLenM*abs(sign(Clipped[Row(i,j)][Col(i,j)]))*SideMod2(i,j), BBackHeight, [struct[i][j][4][0],struct[i][j][4][1],0], Row(i,j), Col(i,j), struct[i][j][5]);
+          modBorderWid(true, WidSides(i,j), struct[i][j][3], WidCheck(i,j), xLenM*abs(sign(Clipped[Row(i,j)][Col(i,j)]))*SideMod2(i,j),  HeightCheck(i,j), [struct[i][j][4][0],struct[i][j][4][1],0], Row(i,j), Col(i,j), struct[i][j][5]);
         } else {
-          modBorderLen(true, struct[i][j][3], LenSides(i,j), LenCheck(i,j), xLenM*abs(sign(Clipped[Row(i,j)][Col(i,j)]))*SideMod(i,j), BBackHeight, [struct[i][j][4][0],struct[i][j][4][1],0], Row(i,j), Col(i,j), struct[i][j][5]);
+          modBorderLen(true, struct[i][j][3], LenSides(i,j), LenCheck(i,j), xLenM*abs(sign(Clipped[Row(i,j)][Col(i,j)]))*SideMod(i,j),  HeightCheck(i,j), [struct[i][j][4][0],struct[i][j][4][1],0], Row(i,j), Col(i,j), struct[i][j][5]);
         }
       }
     }
@@ -649,144 +619,11 @@ module BuildTopEnclosure(bBotScale = RScale){
 
 //--- Rule based Pretty border
 module BuildPrettyTransition(bBotScale = RScale, BackCase_1Limit = -unit/4, BackCase_2Limit = unit/4 , FrontCase_1Limit = unit/4, FrontCase_2Limit = unit/4, FrontCase_3Limit, DipConditionLimit = unit/6, TransitionHeightLimit = 10){
-  for (cols = colRange){
-//    echo(cols, FRowZPos(cols+1), FRowZPos(cols),FRowZPos(cols+1)-FRowZPos(cols)); //codition check
-//    echo(cols, BRowYPos(cols), BRowYPos(cols-1),BRowYPos(cols)-BRowYPos(cols-1), DipConditionLimit); //codition check
-    //BACK
-    //Case 1: if Bottom stagger of next column is substantial Back 
-    if (BRowYPos(cols+1) - BRowYPos(cols) < BackCase_1Limit && cols+1 != TStart){
-//      echo("case B1");
-      // if next col is lower by at least half unit THAN bind by webbing b/w BACK side and LEFT
-      color("Green")hull(){ //Widwise Transition on Row Init  
-        modBorderLen(true,  BACK,     0, 0, xLenM*abs(sign(Clipped[RowInits[cols]][cols])), BBackHeight, [0,0,0], RowInits[cols], cols, [1,bBotScale,1]);
-        if (cols != TEnd && cols != CEnd){ //chepa solution to 
-          modBorderWid(true,   0,  LEFT, 0, xLenM*abs(sign(Clipped[RowInits[cols+1]][cols+1])), BBackHeight, [0,0,0], RowInits[cols+1], cols+1, [bBotScale,1,1]); 
-          buildCorner(RowInits[cols+1], cols+1, side1 = BACK, side2 = LEFT, BHeight = BBackHeight, bBotScale = RScale); //Bottom Right row corner   
-        }
-        //dip condiiton 
-        if (BRowYPos(cols) - BRowYPos(cols-1) > DipConditionLimit &&  cols != CStart &&  cols != TStart &&  cols-1 != CEnd){
-          modBorderWid(true,   0, RIGHT, 0, xLenM*abs(sign(Clipped[RowInits[cols-1]][cols-1])), BBackHeight, [0,0,0], RowInits[cols-1], cols-1, [bBotScale,1,1]);   
-          buildCorner(RowInits[cols-1], cols-1, side1 = BACK, side2 = RIGHT, BHeight = BBackHeight, bBotScale = RScale); //Bottom Right row corner
-        }
-      }
-    }
-    //Case 2: if bottom stagger of next col is small, simpl hull
-    else if (abs(BRowYPos(cols) - BRowYPos(cols+1)) < BackCase_2Limit && cols != CEnd && cols != TEnd){
-//      echo("case B2");
-      // if next col is lower or higher by less than half unit bind by hulling entire thing
-      color("DodgerBlue")hull(){
-        modBorderLen(true, BACK,    0, 0, xLenM*abs(sign(Clipped[RowInits[cols]][cols])), BBackHeight, [0,0,0], RowInits[cols], cols, [1,bBotScale,1]);
-        modBorderLen(true, BACK,    0, 0, xLenM*abs(sign(Clipped[RowInits[cols+1]][cols+1])), BBackHeight, [0,0,0], RowInits[cols+1], cols+1, [1,bBotScale,1]);
-      
-      //dip condiiton        
-        if (BRowYPos(cols) - BRowYPos(cols-1) > DipConditionLimit &&  cols != CStart &&  cols != TStart &&  cols-1 != CEnd){
-          modBorderWid(true,   0, RIGHT, 0, xLenM*abs(sign(Clipped[max(RowInits[cols]-1,0)][cols-1])), BBackHeight, [0,0,0], max(RowInits[cols]-1,0), cols-1, [bBotScale,1,1]);   
-          buildCorner(max(RowInits[cols]-1,0), cols-1, side1 = BACK, side2 = RIGHT, BHeight = BBackHeight, bBotScale = RScale); //Bottom Right row corner
-        }
-      }
-    }    
-    //Case 3: catch condition
-    else if(cols != CEnd && cols != TEnd) {
-//      echo("case B3");
-      color("Orange")hull(){
-        modBorderLen(true, BACK,    0, 0, xLenM*abs(sign(Clipped[RowInits[cols]][cols])), BBackHeight, [RIGHT,0,0], RowInits[cols], cols, [1,bBotScale,1]);
-        modBorderLen(true, BACK,    0, 0, xLenM*abs(sign(Clipped[RowInits[cols+1]][cols+1])), BBackHeight, [LEFT,0,0], RowInits[cols+1], cols+1, [1,bBotScale,1]);
-      }
-    }
-    //Front Side
-    //Case 1: if change in col stagger is Small enough, hull entirely to next column
-    if (abs(FRowYPos(cols+1) - FRowYPos(cols)) < FrontCase_1Limit && cols != CEnd && cols != TEnd){
-//      echo("case F1");
-      color("Navy")hull(){ //Widwise Transition on Row Init  
-        modBorderLen(true, FRONT,    0, 0, xLenM*abs(sign(Clipped[RowEnds[cols]][cols])), BFrontHeight, [0,0,0], RowEnds[cols], cols, [1,bBotScale,1]);
-        if (RowEnds[cols]+1 <= RowEnds[cols+1]){ // if next column has more row above
-          modBorderWid(true,     0, LEFT, 0, xLenM*abs(sign(Clipped[RowEnds[cols]+1][cols+1])),  BFrontHeight, [0,0,0], RowEnds[cols]+1, cols+1, [bBotScale,1,1]);  
-        }else {
-          modBorderLen(true, FRONT,    0, 0, xLenM*abs(sign(Clipped[RowEnds[cols+1]][cols+1])),  BFrontHeight, [0,0,0], RowEnds[cols+1], cols+1, [1,bBotScale,1]);    
-        }
-      }
-    } 
-    //Case 2: if col+1 stagger is higher and is substantial, hull to col top to col+1 edge
-    //TODO: add height conditions, and add corner 
-    else if (FRowYPos(cols+1) - FRowYPos(cols) > FrontCase_2Limit && cols != CEnd){
-//      echo("case F2");
-      color("RED")hull(){
-        //col hull 
-        if (FRowZPos(cols+1)-FRowZPos(cols) > TransitionHeightLimit){// next transition is too high, use edge 
-//            echo("case 2 high diff @ C", FRowZPos(cols+1)-FRowZPos(cols));
-          modBorderLen(true, FRONT, 0, 0, xLenM*abs(sign(Clipped[RowEnds[cols]][cols])), BFrontHeight, [RIGHT,0,0], RowEnds[cols], cols, [1,bBotScale,1]); 
-        } else {
-          modBorderLen(true, FRONT, 0, 0, xLenM*abs(sign(Clipped[RowEnds[cols]][cols])), BFrontHeight, [0,0,0], RowEnds[cols], cols, [1,bBotScale,1]); 
-        }
-        //col+1 hull
-        if (RowEnds[cols+1] > RowEnds[cols]){// if next col has more Rows, bind to next rows rather than max 
-          modBorderWid(true, 0, LEFT, 0, xLenM*abs(sign(Clipped[RowEnds[cols]+1][cols+1])), BFrontHeight, [0,0,0], RowEnds[cols]+1, cols+1, [bBotScale,1,1]);     
-        }else {
-          if (FRowZPos(cols)-FRowZPos(cols+1) > TransitionHeightLimit){// if height difference is great bind to left side only to avoid excessive artifacts
-//            echo("case 2 high diff @ C", cols);
-            modBorderLen(true, FRONT, 0, 0, xLenM*abs(sign(Clipped[RowEnds[cols+1]][cols+1])), BFrontHeight, [0,0,0], RowEnds[cols+1], cols+1, [1,bBotScale,1]);  
-          } else {
-            modBorderLen(true, FRONT, 0, 0, xLenM*abs(sign(Clipped[RowEnds[cols+1]][cols+1])), BFrontHeight, [LEFT,0,0], RowEnds[cols+1], cols+1, [1,bBotScale,1]);              
-          }
-        }
-      }
-    }   
-    //Case 3: if col+1 stagger is lower and is substantial, hull to col edge to col+1 top 
-    else if (FRowYPos(cols+1) - FRowYPos(cols) < -unit/2 && cols != CEnd && cols != TEnd){
-//      echo("case F3");
-      //part 1 Edge 
-      color("Blue")hull(){
-        if (RowEnds[cols] > RowEnds[cols+1]){ //if current col has more rows bind to next RowEnd+1 of next col
-          if(RowEnds[cols+1]+1 == RowEnds[cols]){ // if hightest row add transition and corner
-            buildCorner(RowEnds[cols], cols, side1 = FRONT, side2 = RIGHT, BHeight = BFrontHeight, bBotScale = RScale);
-          } else {
-            modBorderWid(true,     0, RIGHT, 0, xLenM*abs(sign(Clipped[RowEnds[cols+1]+1][cols])), BBackHeight,   [0,0,0], RowEnds[cols+1]+1, cols, [bBotScale,1,1]);  
-          }  
-        } else {
-//          modBorderWid(true,     0, RIGHT, 0, xLenM, BFrontHeight, [0,0,0], RowEnds[cols], cols, [bBotScale,1,1]); 
-          buildCorner(RowEnds[cols], cols, side1 = FRONT, side2 = RIGHT, BHeight = BFrontHeight, bBotScale = RScale);
-        }
-        modBorderLen(true, FRONT,     0, 0, xLenM*abs(sign(Clipped[RowEnds[cols+1]][cols+1])), BFrontHeight, [0,0,0], RowEnds[cols+1], cols+1, [1,bBotScale,1]);  
-      }
-      //edge bind if col row > col +1 rows  
-      color("Blue")hull(){
-        if (RowEnds[cols] > RowEnds[cols+1]){ //if current col has more rows bind to next RowEnd+1 of next col
-          if(RowEnds[cols+1]+1 == RowEnds[cols]){ // if hightest row add transition and corner
-            modBorderWid(true,     0, RIGHT, 0, xLenM*abs(sign(Clipped[RowEnds[cols]][cols])), BFrontHeight, [0,FRONT,0], RowEnds[cols], cols, [bBotScale,1,1]);        
-            modBorderWid(true,     0, RIGHT, 0, xLenM*abs(sign(Clipped[RowEnds[cols]][cols])), BBackHeight,   [0,BACK,0], RowEnds[cols], cols, [bBotScale,1,1]);   
-          } else {
-           
-            
-          }
-          modBorderLen(true, FRONT,     0, 0, xLenM*abs(sign(Clipped[RowEnds[cols+1]][cols+1])), BFrontHeight, [LEFT,0,0], RowEnds[cols+1], cols+1, [1,bBotScale,1]);  
-        }
-      } 
-    } 
-    //Case 4: catch condition 
-    else if (cols != CEnd && cols != TEnd){  
-//      echo("case F4");
-      color("MidnightBlue")hull(){ //Widwise Transition on Row Init
-        if (FRowZPos(cols+1)-FRowZPos(cols) > TransitionHeightLimit){ //Hullface adjustment when encountering large height difference 
-          modBorderLen(true, FRONT,    0,       0, xLenM*abs(sign(Clipped[RowEnds[cols]][cols])),  BFrontHeight, [RIGHT,0,0], RowEnds[cols], cols, [1,bBotScale,1]);  
-          modBorderLen(true, FRONT,    0,       0, xLenM*abs(sign(Clipped[RowEnds[cols+1]][cols+1])),  BFrontHeight, [0,0,0], RowEnds[cols+1], cols+1, [1,bBotScale,1]); 
-          if(RowEnds[cols] > RowEnds[cols+1]){
-            modBorderWid(true, 0, RIGHT, 0, xLenM*abs(sign(Clipped[RowEnds[cols]][cols])), BFrontHeight, [0,FRONT,0], RowEnds[cols], cols, [bBotScale,1,1]);        
-            modBorderWid(true, 0, RIGHT, 0, xLenM*abs(sign(Clipped[RowEnds[cols]][cols])), BBackHeight,   [0,BACK,0], RowEnds[cols], cols, [bBotScale,1,1]);   
-          } 
-        } else if (FRowZPos(cols+1)-FRowZPos(cols) < TransitionHeightLimit){
-            modBorderLen(true, FRONT, 0, 0, xLenM*abs(sign(Clipped[RowEnds[cols]][cols])),  BFrontHeight, [RIGHT,0,0], RowEnds[cols], cols, [1,bBotScale,1]);  
-            modBorderLen(true, FRONT, 0, 0, xLenM*abs(sign(Clipped[RowEnds[cols+1]][cols+1])),  BFrontHeight, [0,0,0], RowEnds[cols+1], cols+1, [1,bBotScale,1]);  
-        }else{
-          modBorderLen(true, FRONT, 0, 0,     xLenM*abs(sign(Clipped[RowEnds[cols]][cols])), BFrontHeight, [0,0,0],   RowEnds[cols],   cols, [1,bBotScale,1]);
-          modBorderLen(true, FRONT, 0, 0, xLenM*abs(sign(Clipped[RowEnds[cols+1]][cols+1])), BFrontHeight, [0,0,0], RowEnds[cols+1], cols+1, [1,bBotScale,1]);  
-        }
-      }
-    }
-  }
+// deprciated as it only works in simple cases, which typically is not the case  
 }
 
 //support module to build bottom enclosure.
-module hullEnclusure(){
+module hullEnclusure (){
   hull(){
     rotate(tenting)translate([0,0,plateHeight])hull(){
       children([0:$children-1]);
@@ -797,19 +634,19 @@ module hullEnclusure(){
   }
 }
 
-module transEnclose(){
+module transEnclose (){
   rotate(tenting)translate([0,0,plateHeight]){
       children([0:$children-1]);
   }
 }
-
-module projectEnclose(thickness = .5, height = 0, projectionCut = false){
+ 
+module projectEnclose (thickness = .5, height = 0, projectionCut = false){
   translate([0,0,height])linear_extrude(thickness)projection(cut = projectionCut)rotate(tenting)translate([0,0,plateHeight])hull(){
     children([0:$children-1]);
   }
 }
 
-module USBPort(Length = 1, type = "C"){
+module USBPort (Length = 1, type = "C"){
   if(type == "C"){
     rotate([0,90,90])hull(){
       translate([0,-4,0])cylinder(d = 6, Length);
@@ -821,7 +658,7 @@ module USBPort(Length = 1, type = "C"){
   }
 }
 
-module BuildBottomEnclosure(struct = Eborder, JackType = true, MCUType = true)
+module BuildBottomEnclosure (struct = Eborder, Mount = false,  JackType = true, MCUType = true)
 {  
   function Col(n,m,l) = struct[n][m][l][0];
   function Row(n,m,l) = struct[n][m][l][1];
@@ -832,12 +669,13 @@ module BuildBottomEnclosure(struct = Eborder, JackType = true, MCUType = true)
 //  function SideMod(i,j,k)  = (struct[i][j][k][3] == sign(Clipped[Row(i,j,k)][Col(i,j,k)]) && struct[i][j][k][2])?1:0; 
   function SideMod(i,j,k)  = (SwitchOrientation[Row(i,j,k)][Col(i,j,k)] && struct[i][j][k][3] == sign(Clipped[Row(i,j,k)][Col(i,j,k)]))?0:1;
   function SideMod2(i,j,k) = (SwitchOrientation[Row(i,j,k)][Col(i,j,k)] || struct[i][j][k][3] == sign(Clipped[Row(i,j,k)][Col(i,j,k)]))?0:1;
-  
+
   //submodule for calling the correct border modulation module and passing Parameters  
   
   module modBorder(structID = 0, surfaceID = 0, subStructID = 0){
     row = struct[structID][surfaceID][subStructID][1];
     col = struct[structID][surfaceID][subStructID][0];
+    Bheight = col>C7?TBackHeight:BBackHeight;
     
     function SideMod(i,j) = (SwitchOrientation[i][j] && struct[structID][surfaceID][subStructID][3] == sign(Clipped[i][j]))?0:1;
     if (struct[structID][surfaceID][subStructID][2] == true){ //check logic for Width or Length Wise Modulation
@@ -847,7 +685,7 @@ module BuildBottomEnclosure(struct = Eborder, JackType = true, MCUType = true)
         refSides = struct[structID][surfaceID][subStructID][3], 
         dimClip = WidCheck(structID,surfaceID,subStructID), 
         refClip = xLenM*abs(sign(Clipped[row][col]))*SideMod2(structID,surfaceID,subStructID), 
-        height = BBackHeight, 
+        height = Bheight,  
         hullSides = [struct[structID][surfaceID][subStructID][4][0],struct[structID][surfaceID][subStructID][4][1],0], 
         rows = row, 
         cols = col, 
@@ -859,8 +697,8 @@ module BuildBottomEnclosure(struct = Eborder, JackType = true, MCUType = true)
         struct[structID][surfaceID][subStructID][3], 
         LenSides(structID,surfaceID,subStructID), 
         LenCheck(structID,surfaceID,subStructID), 
-        xLenM*abs(sign(Clipped[row][col]))*SideMod(i= structID,j= surfaceID,k=subStructID), 
-        BBackHeight, 
+        xLenM*abs(sign(Clipped[row][col]))*SideMod(i= structID,j= surfaceID), 
+        Bheight , 
         [struct[structID][surfaceID][subStructID][4][0],struct[structID][surfaceID][subStructID][4][1],0], 
         row, 
         col, 
@@ -868,10 +706,50 @@ module BuildBottomEnclosure(struct = Eborder, JackType = true, MCUType = true)
       );
     }
   }
+ 
+    module modBottom(structID = 0, surfaceID = 0, subStructID = 0){
+    row = struct[structID][surfaceID][subStructID][1];
+    col = struct[structID][surfaceID][subStructID][0];
+    Bheight = col>C7?TBackHeight:BBackHeight;
+    
+    function SideMod(i,j) = (SwitchOrientation[i][j] && struct[structID][surfaceID][subStructID][3] == sign(Clipped[i][j]))?0:1;
+    if (struct[structID][surfaceID][subStructID][2] == true){ //check logic for Width or Length Wise Modulation
+      modBottomWid(
+        Hulls = true,
+        sides = WidSides(structID,surfaceID,subStructID),
+        refSides = struct[structID][surfaceID][subStructID][3], 
+        dimClip = WidCheck(structID,surfaceID,subStructID), 
+        refClip = xLenM*abs(sign(Clipped[row][col]))*SideMod2(structID,surfaceID,subStructID), 
+        height = Bheight,  
+        hullSides = [struct[structID][surfaceID][subStructID][4][0],struct[structID][surfaceID][subStructID][4][1],0], 
+        rows = row, 
+        cols = col, 
+        scaling = struct[structID][surfaceID][subStructID][5]
+      );
+    } else {
+      modBottomLen(
+        true,
+        struct[structID][surfaceID][subStructID][3], 
+        LenSides(structID,surfaceID,subStructID), 
+        LenCheck(structID,surfaceID,subStructID), 
+        xLenM*abs(sign(Clipped[row][col]))*SideMod(i= structID,j= surfaceID), 
+        Bheight , 
+        [struct[structID][surfaceID][subStructID][4][0],struct[structID][surfaceID][subStructID][4][1],0], 
+        row, 
+        col, 
+        struct[structID][surfaceID][subStructID][5]
+      );
+    }
+  }
+  
   module EnclosureSection(ID = 0) {
     hull(){
       for (j = [0:len(struct[ID][0])-1]) {//itt through top surface list
-        transEnclose(){modBorder(structID = ID, surfaceID = 0, subStructID = j);}
+        if(struct[ID][3]==true){ //
+          transEnclose(){modBorder(structID = ID, surfaceID = 0, subStructID = j);}
+        } else {
+          transEnclose(){modBottom(structID = ID, surfaceID = 0, subStructID = j);}
+        }
       }
       for (k = [0:len(struct[ID][1])-1]) {//itt throgh bottom projection list
         projectEnclose(){modBorder(structID = ID, surfaceID = 1, subStructID = k);}
@@ -899,7 +777,7 @@ module BuildBottomEnclosure(struct = Eborder, JackType = true, MCUType = true)
       if(Mount == true){
         for(i = [0:len(mountScrew)-1]){
           hull(){
-            translate(mountScrew[i])cylinder(d = mountDia*1.5, 7, $fn = 16); // Mount Screw 
+            #translate(mountScrew[i])cylinder(d = mountDia*1.5, 8, $fn = 16); // Mount Screw 
             translate([0,0,-midHeight])linear_extrude(.01)projection(true)translate([0,0,midHeight])EnclosureSection(ID = mountHull[i]); // Prjected section of enclosure to be hulled
             for (k = [0:len(struct[mountHull[i]][1])-1]){ // bottom of enclosure section to hull
               projectEnclose(.5){modBorder(structID = mountHull[i], surfaceID = 1, subStructID = k);}
@@ -910,7 +788,9 @@ module BuildBottomEnclosure(struct = Eborder, JackType = true, MCUType = true)
     
       if(JackType == "RJ45"){
         translate(JackLoc+[-7,0,0])rotate(JackAng+[0,0,0])cube([15.24+3,5,15+3], center= true);  
-      }  
+      }  else if(JackType == "TRRS"){
+//      #translate(JackLoc+[0,0,0])rotate(JackAng+[90,0,90])translate([0,0,10])cylinder(d=11, 8,center= true, $fn=32);
+        }
     }  
     //CUTS
     //Mounts
@@ -919,69 +799,24 @@ module BuildBottomEnclosure(struct = Eborder, JackType = true, MCUType = true)
     }
     
     if(JackType == "TRRS"){
-//      translate(JackLoc)rotate(JackAng)cube(JackDim, center = true);
-      translate(JackLoc+[0,14,0])rotate(JackAng+[90,0,90])cylinder(d = 8, 15, center= true);
+
+      #translate(JackLoc+[0,0,0])rotate(JackAng+[90,0,90])translate([0,0,12])cylinder(d = 8, 20, center= true);
+      #translate(JackLoc)rotate(JackAng)translate([.5,0,-2])cube(JackDim+[1,1,-3], center = true);
     } else if(JackType == "RJ45"){
       #translate(JackLoc+[0,0,0])rotate(JackAng+[0,0,0])cube([15.24,20.75,15], center= true);  
     }
     
     if(MCUType == true){
-      #translate(MCULoc)cube(MCUDim, center = true);
-      #translate(USBLoc)USBPort(20);
+#      translate(MCULoc)cube(MCUDim, center = true);
+#      translate(USBLoc)USBPort(20);
     }
     //TODO: trackball modules?
    
   }
 }
-module BuildBottomPlate2(struct = Eborder, aStruct = addCuts, hullList = Hstruct, JackType = true, MCUType = true, Mount = false)
- {
-  refDim   = PlateDim +[0,0,-5.5];
-  buildDim = [PlateDim[0], PlateDim[1], PlateDim[2]+PBuffer+2];
-  
-  function Sides(r, c)  = SwitchOrientation[r][c]?-sign(Clipped[r][c]):0;
-  function SideMod(r,c, refsides) = (!SwitchOrientation[r][c] && refsides == sign(Clipped[r][c]))?0:1;
-  module modWeb(Hulls = true,  sides = 0, refSides = 0, hullSides = [0,0,0], row, col){
-    if(SwitchOrientation[row][col] == true){
-      PlaceRmCn(row, col)scale([CapScale[row][col],1,1])modulate(refDim+[0,-abs(Clipped[row][col])*2,PBuffer*2], [refSides,sides,TOP],buildDim+[-WebThickness,-abs(Clipped[row][col]),PBuffer], [-refSides,-sides,BOTTOM], Hull = Hulls, hullSide = hullSides);
-    }else {
-      PlaceRmCn(row, col)scale([1,CapScale[row][col],1])modulate(refDim+[-abs(Clipped[row][col])*2*SideMod(row,col, refSides),0,PBuffer*2], [refSides,sides,TOP],buildDim+[-WebThickness,0,PBuffer], [-refSides,sides,BOTTOM], Hull = Hulls, hullSide = hullSides);
-    }
-  }
-   difference(){
-    union(){
-      for (cols = colRange){// build main plate objects
-        BuildColumn(PlateDim[2]+PBuffer+2, -5.5, BOTTOM, col = cols, rowInit = RowInits[cols], rowEnd = RowEnds[cols]); //builds plate 
-
-        //build webbing between Columns
-        if(ColumnOrigin[cols+1][0][0]-ColumnOrigin[cols][0][0] < PlateDim[0]){//column separation are larger than the boundary  
-//          BindColums(TopAlignment = BOTTOM, BufferAlignment1 = 0, BufferAlignment2 = 0, cols= cols);
-        } else {
-//          BindColums(TopAlignment = BOTTOM, BufferAlignment1 = RIGHT, BufferAlignment2 = 0, cols= cols);
-        }
-        //extra web
-      }
-      BindColums(TopAlignment = BOTTOM, BufferAlignment1 = LEFT,  BufferAlignment2 = RIGHT, cols= C1, plateThickness =PlateDim[2]+PBuffer+2, offsets =-5.5);
-      BindColums(TopAlignment = BOTTOM, BufferAlignment1 = 0,     BufferAlignment2 = LEFT,  cols= C2, plateThickness =PlateDim[2]+PBuffer+2, offsets =-5.5);
-      BindColums(TopAlignment = BOTTOM, BufferAlignment1 = RIGHT, BufferAlignment2 = 0,     cols= C3, plateThickness =PlateDim[2]+PBuffer+2, offsets =-5.5);
-      BindColums(TopAlignment = BOTTOM, BufferAlignment1 = RIGHT, BufferAlignment2 = 0,     cols= C4, plateThickness =PlateDim[2]+PBuffer+2, offsets =-5.5);
-      BindColums(TopAlignment = BOTTOM, BufferAlignment1 = 0,     BufferAlignment2 = 0,     cols= C5, plateThickness =PlateDim[2]+PBuffer+2, offsets =-5.5);
-      BindColums(TopAlignment = BOTTOM, BufferAlignment1 = LEFT,  BufferAlignment2 = RIGHT, cols= T0, plateThickness =PlateDim[2]+PBuffer+2, offsets =-5.5);      
-      
-      hull(){
-        modWeb(Hulls = true,  sides = 0, refSides = LEFT,  hullSides = [LEFT,0,0], row =R1, col =C2);
-        modWeb(Hulls = true,  sides = 0, refSides = RIGHT, hullSides = [RIGHT,FRONT,0], row =R2, col =T1);        
-      }
-      hull(){
-        modWeb(Hulls = true,  sides = 0, refSides = LEFT,  hullSides = [0,BACK,0], row =R1, col =C2);
-        modWeb(Hulls = true,  sides = 0, refSides = RIGHT, hullSides = [0,BACK,0], row =R1, col =C2);
-        modWeb(Hulls = true,  sides = 0, refSides = RIGHT, hullSides = [RIGHT,0,0], row =R2, col =T1);        
-      }    
-    }
-  }
- }
  
 //generate Bottom Plate for mounting MCU, Jacks and weights?
-module BuildBottomPlate(struct = Eborder, aStruct = addCuts, hullList = Hstruct, JackType = true, MCUType = true, Mount = false)
+module BuildBottomPlate(struct = Eborder, hullList = Hstruct, JackType = true, MCUType = true, Mount = false)
  {
   //submodule for calling the correct border modulation module and passing Parameters  
   //TODO: repeating module! clean up
@@ -1000,8 +835,9 @@ module BuildBottomPlate(struct = Eborder, aStruct = addCuts, hullList = Hstruct,
   module modBorder(structID = 0, surfaceID = 0, subStructID = 0){
     row = struct[structID][surfaceID][subStructID][1];
     col = struct[structID][surfaceID][subStructID][0];
-    
+//    echo("mod",row, col,subStructID, struct[structID][surfaceID][subStructID]);
     function SideMod(i,j) = (SwitchOrientation[i][j] && struct[structID][surfaceID][subStructID][3] == sign(Clipped[i][j]))?0:1;
+    
     if (struct[structID][surfaceID][subStructID][2] == true){ //check logic for Width or Length Wise Modulation
       modBorderWid(
         Hulls = true,
@@ -1021,7 +857,7 @@ module BuildBottomPlate(struct = Eborder, aStruct = addCuts, hullList = Hstruct,
         struct[structID][surfaceID][subStructID][3], 
         LenSides(structID,surfaceID,subStructID), 
         LenCheck(structID,surfaceID,subStructID), 
-        xLenM*abs(sign(Clipped[row][col]))*SideMod(i= structID,j= surfaceID,k=subStructID), 
+        xLenM*abs(sign(Clipped[row][col]))*SideMod(i= structID, j= surfaceID), 
         BBackHeight*abs(sign(Clipped[row][col])), 
         [struct[structID][surfaceID][subStructID][4][0],struct[structID][surfaceID][subStructID][4][1],0], 
         row, 
@@ -1030,26 +866,26 @@ module BuildBottomPlate(struct = Eborder, aStruct = addCuts, hullList = Hstruct,
       );
     }
   }
-   
+
    difference(){
     union(){
       for (i = [0:len(hullList)-1]){  
         hull(){
           for (j = [0:len(hullList[i])-1]) {
-            for (k = [0:len(struct[j][1])-1]){
+            for (k = [0:len(struct[hullList[i][j]][1])-1]){
+//              echo("bttm", i,j,k,struct[hullList[i][j]][1], hullList[i][j] );
               projectEnclose(2){modBorder(structID = hullList[i][j], surfaceID = 1, subStructID = k);}
             }
-          // Section for TB module case
-          if (struct[hullList[i][j]][2] != [0,0,0]){
-            projectEnclose(2)translate(trackOrigin)rotate(trackTilt)rotate(SensorRot)translate([0,0,-36/2])
-            scale([1,1,1])modulate(PCBCaseDim, [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = [0,0,0]);
-          }
-//          echo(struct[hullList[i][j]][2]);
+            // Section for TB module case
+            if (struct[hullList[i][j]][2] != [0,0,0]){
+              projectEnclose(2)translate(trackOrigin)rotate(trackTilt)rotate(SensorRot)translate([0,0,-36/2])
+              scale([1,1,1])modulate(PCBCaseDim, [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = [0,0,0]);
+            }
           }
         }
       }
       if(JackType == true){
-        translate(JackLoc+[0,-2.5,-2])rotate(JackAng)cube(JackDim+[5,5,-4], center = true);
+        translate(JackLoc)rotate(JackAng)translate([-2.5,0,-2])cube(JackDim+[5,5,-4], center = true);
       }
       
       if(MCUType == true){
@@ -1074,45 +910,23 @@ module BuildBottomPlate(struct = Eborder, aStruct = addCuts, hullList = Hstruct,
         }
       }
     }
-      for (i = [0:len(addCuts)-1]){  
-        translate([0,0,-.02])scale(1.02)hull(){
-          for (j = [0:len(addCuts[i])-1]) {
-            for (k = [0:len(struct[j][1])-1]){
-              projectEnclose(3){modBorder(structID = addCuts[i][j], surfaceID = 1, subStructID = k);}
-            }
-          }
-        }
-      }
-    for (i = [0:len(struct)-1]){  // cut wedge from enclosure
-      translate([0,0,-.02])scale(1.001)hull(){
-        for (j = [0:len(struct[i][0])-1]) {//itt through top surface list
-//          #transEnclose(){modBorder(structID = i, surfaceID = 0, subStructID = j);}
-        }
-        for (k = [0:len(struct[i][1])-1]) {//itt throgh bottom projection list
-//          #projectEnclose(){modBorder(structID = i, surfaceID = 1, subStructID = k);}
-        }
-      }
-    }
-//    if(Text == true){
-//      #translate([15,10,-.02])mirror([1,0,0])linear_extrude(height = 0.5)text( text = "GiGI", font = "Constantia:style=Bold", size = 12, valign = "center", halign = "center" );
-//    }
+
     if(Mount == true){
       for(i = [0:len(mountScrew)-1]){
-        translate([0,0,0])translate(mountScrew[i])cylinder(d1 = mountDia*2, d2 = mountDia, 2.8, $fn = 32);
-        translate([0,0,-.5])translate(mountScrew[i])cylinder(d = mountDia, bpThickness+1, $fn = 32);
+        translate([0,0,0])translate(mountScrew[i])cylinder(d1 = screwtopDia, d2 =  screwholeDia, 2.8, $fn = 32);
+        translate([0,0,-.5])translate(mountScrew[i])cylinder(d = screwholeDia, bpThickness+1, $fn = 32);
       }
     }
+    
     if(JackType == true){
-      translate(JackLoc)rotate(JackAng)cube(JackDim, center = true);
-      translate(JackLoc+[0,14,0])rotate(JackAng+[90,0,90])cylinder(d = 8, 10, center= true);
+      #translate(JackLoc)rotate(JackAng)cube(JackDim, center = true);
+      #translate(JackLoc)rotate(JackAng+[90,0,90])translate([0,0,14])cylinder(d = 8, 10, center= true);
     }
     
-    if(MCUType == true){
-      
+    if(MCUType == true){  
       // for flipped Elite C
       translate(MCULoc)cube(MCUDim, center = true);
-      translate(USBLoc)USBPort(20);
-      
+      translate(USBLoc)USBPort(20); 
       //reset button for 
       translate(MCULoc+[-2.5,5-32.5/2,0])cylinder(d = 3, 15, center = true);
       translate(MCULoc+[-2.5,5-32.5/2,-1])cube([5,4,3], center = true);
@@ -1120,12 +934,10 @@ module BuildBottomPlate(struct = Eborder, aStruct = addCuts, hullList = Hstruct,
       translate(MCULoc+[-9.25+1.5,0,0])cube([2,32.5,3], center = true);
       translate(MCULoc+[9.25-1.5,0,0])cube([2,32.5,3], center = true);
       translate(MCULoc+[0,-32.5/2+1.5,0])cube([18.5,2,3], center = true);
-      
-      //for MCP 24 pin 
-    }
-  
+    }  
   }
 }
+
 //--- Misc
 //--- TrackBall
 module PCB(height = 8){
@@ -1211,51 +1023,43 @@ module TrackBall(){
 }
 
 //Key Switches and Caps 
-module BuildSet(switchType, capType = DSA, colors, stemcolor,switchH = 0)
+module BuildKeyWells () {
+  for(cols = colRange){
+    for(rows = [RowInits[cols]:RowEnds[cols]]){
+      PlaceRmCn(rows, cols){
+        if(SwitchOrientation[rows][cols] == true){
+          Keyhole(tol = 0, clipLength = Clipped[rows][cols], cutThickness = 1, type = SwitchTypes[rows][cols], boffsets = holeOffset);
+        }else {
+          rotate([0,0,-90])Keyhole(tol = 0, clipLength = Clipped[rows][cols], cutThickness = 1, type = SwitchTypes[rows][cols], boffsets = holeOffset);
+        }
+      }
+    }  
+  }
+
+  //switch top cuts
+  for(cols = colRange)BuildColumn(PlateDim[2]+PBuffer+10, 0, TOP, col = cols, rowInit = RowInits[cols], rowEnd = RowEnds[cols]);  
+  BuildColumn(PlateDim[2]+PBuffer+10, 0, TOP, col = CStart, rowInit = RowInits[CStart], rowEnd = RowEnds[CStart], offset2 = 18, adjust = LEFT);  
+  BuildColumn(PlateDim[2]+PBuffer+10, 0, TOP, col = CEnd, rowInit = RowInits[CEnd], rowEnd = RowEnds[CEnd],offset2 = 18, adjust = RIGHT);  
+}
+
+module BuildSet (switchType = SwitchTypes, capType = DSA, colors, stemcolor, switchH = 0) //place objects on key position 
 {
   for(cols = [CStart:CEnd]){
     for(rows = [RowInits[cols]:RowEnds[cols]]){
       PlaceRmCn(rows, cols)
-      if(SwitchOrientation[rows][cols] == true){translate([0,0,switchH])Switch(switchScale = [CapScale[rows][cols],1,1], type = switchType, CapColor = colors,  Caps = capType, StemColor = stemcolor, clipLength = Clipped[rows][cols]);}
-      else {translate([0,0,switchH])rotate([0,0,-90])Switch(switchScale = [CapScale[rows][cols],1,1],type = switchType, CapColor = colors, Caps = capType, StemColor = stemcolor, clipLength = Clipped[rows][cols]);}
+      if(SwitchOrientation[rows][cols] == true){translate([0,0,switchH])Switch(switchScale = [CapScale[rows][cols],1,1], type = switchType[rows][cols], CapColor = colors,  Caps = capType, StemColor = stemcolor, clipLength = Clipped[rows][cols], Row = rows-1);}
+      else {translate([0,0,switchH])rotate([0,0,-90])Switch(switchScale = [CapScale[rows][cols],1,1],type = switchType[rows][cols], CapColor = colors, Caps = capType, StemColor = stemcolor, clipLength = Clipped[rows][cols], Row = rows-1);}
     }
   }
   for(cols = [TStart:TEnd]){
     for(rows = [RowInits[cols]:RowEnds[cols]]){
       PlaceRmCn(rows, cols)
-      if(SwitchOrientation[rows][cols] == true){translate([0,0,switchH])scale([1.0,1.0,1])Switch(switchScale = [CapScale[rows][cols],1,1],type = switchType, CapColor = colors,  Caps = capType, StemColor = stemcolor, clipLength = Clipped[rows][cols]);}
-      else {translate([0,0,switchH])rotate([0,0,-90])scale([1.0,1,1])Switch(switchScale = [CapScale[rows][cols],1,1],type = switchType, CapColor = colors,  Caps = capType, StemColor = stemcolor, clipLength = Clipped[rows][cols]);}
+      if(SwitchOrientation[rows][cols] == true){translate([0,0,switchH])scale([1.0,1.0,1])Switch(switchScale = [CapScale[rows][cols],1,1],type = switchType[rows][cols], CapColor = colors,  Caps = capType, StemColor = stemcolor, clipLength = Clipped[rows][cols], Row = rows-1);}
+      else {translate([0,0,switchH])rotate([0,0,-90])scale([1.0,1,1])Switch(switchScale = [CapScale[rows][cols],1,1],type = switchType[rows][cols], CapColor = colors,  Caps = capType, StemColor = stemcolor, clipLength = Clipped[rows][cols], Row = rows-1);}
     }
   }
 }
 
-module BuilHotSwapSet(switchH = 0)
-{
-  for(cols = [CStart:CEnd]){
-    for(rows = [RowInits[cols]:RowEnds[cols]]){
-      PlaceRmCn(rows, cols)
-      if(SwitchOrientation[rows][cols] == true){
-        if(rows >R1) translate([0,0,switchH])HotSwap();  
-        else rotate([0,0,180])translate([0,0,switchH])HotSwap();
-        }
-      else {
-        if(Clipped[rows][cols] < 0 )translate([0,0,switchH])rotate([0,0,-90])HotSwap();
-        else translate([0,0,switchH])rotate([0,0,90])HotSwap();}
-    }
-  }
-  for(cols = [TStart:TEnd]){
-    for(rows = [RowInits[cols]:RowEnds[cols]]){
-      PlaceRmCn(rows, cols)
-      if(SwitchOrientation[rows][cols] == true){
-        if(rows >R1) translate([0,0,switchH])HotSwap();  
-        else rotate([0,0,180])translate([0,0,switchH])HotSwap();
-       }
-       else {
-        if(Clipped[rows][cols] < 0 )translate([0,0,switchH])rotate([0,0,-90])HotSwap();
-        else translate([0,0,switchH])rotate([0,0,90])HotSwap();}
-    }
-  }
-}
 module BuildPoints(length= .1) // output to be used by kicad 
 {
   for(cols = [CStart:CEnd]){
@@ -1273,19 +1077,6 @@ module BuildPoints(length= .1) // output to be used by kicad
     }
   }
 }
-//module OutSet()
-//{
-//  for(cols = [CStart:CEnd]){
-//    for(rows = [RowInits[cols]:RowEnds[cols]]){
-//      PlaceRmCn(rows, cols)
-//    }
-//  }
-//  for(cols = [TStart:TEnd]){
-//    for(rows = [RowInits[cols]:RowEnds[cols]]){
-//      PlaceRmCn(rows, cols)
-//    }
-//  }
-//}
 
 //Apply Color to Build
 module PaintColor(colorBool = false){
