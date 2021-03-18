@@ -126,9 +126,9 @@ resetLoc    = [0,0,0];
 USBLoc      = [-23,22-5+32.5/2,6+1.2];
 
 //right side trrs connet
-JackLoc     = [-39.7,2,6];
+JackLoc     = [-44.5,2,6];
 JackDim     = [18,6,10];
-JackAng     = [0,0,154];
+JackAng     = [0,0,159.5];
 
 //JackLoc     = [-44.5,2,6];
 //JackDim     = [18,6,10];
@@ -242,44 +242,44 @@ TopCuts = [[T1, R1, [RIGHT,0,0], T2, R1, [LEFT,0,0]],
           ];
 // define Columns will needs Left or Right borders not catched by Generic calls
 
-PBind      = [[C1,0,LEFT],[C3,RIGHT,0]]; //list of BindColumns to build and bind sides
+PBind      = []; //list of BindColumns to build and bind sides
 
 PlateCustomBind  =
   [
-//   //Ring to Pinkie
-   [[C2,R1,RIGHT,[0,0,0],0],
-    [C3,R1,LEFT, [LEFT,0,0],0]],
-   [[C2,R1,RIGHT,[0,FRONT,0],0],
-//    [C2,R2,RIGHT,[0,BACK,0],0],
-    [C3,R1,LEFT, [LEFT,0,0],0]],
-   [[C2,R1,RIGHT,[0,FRONT,0],0],
-    [C2,R2,RIGHT,[0,BACK,0],0],
-    [C3,R1,LEFT, [LEFT,FRONT,0],0]],
-   [[C2,R2,RIGHT,[0,0,0],0],
-    [C3,R1,LEFT, [LEFT,FRONT,0],0],
-    [C3,R2,LEFT, [LEFT,BACK,0],0]],
-   [[C2,R2,RIGHT,[0,FRONT,0],0],
-    [C3,R2,LEFT, [LEFT,0,0],0]],
+// //   //Ring to Pinkie
+//    [[C2,R1,RIGHT,[0,0,0],0],
+//     [C3,R1,LEFT, [LEFT,0,0],0]],
+//    [[C2,R1,RIGHT,[0,FRONT,0],0],
+// //    [C2,R2,RIGHT,[0,BACK,0],0],
+//     [C3,R1,LEFT, [LEFT,0,0],0]],
+//    [[C2,R1,RIGHT,[0,FRONT,0],0],
+//     [C2,R2,RIGHT,[0,BACK,0],0],
+//     [C3,R1,LEFT, [LEFT,FRONT,0],0]],
+//    [[C2,R2,RIGHT,[0,0,0],0],
+//     [C3,R1,LEFT, [LEFT,FRONT,0],0],
+//     [C3,R2,LEFT, [LEFT,BACK,0],0]],
+//    [[C2,R2,RIGHT,[0,FRONT,0],0],
+//     [C3,R2,LEFT, [LEFT,0,0],0]],
 
-  [[C4,R2,RIGHT,[RIGHT,0,0],0],
-    [C5,R2,LEFT, [LEFT,0,0],0]],
+//   [[C4,R2,RIGHT,[RIGHT,0,0],0],
+//     [C5,R2,LEFT, [LEFT,0,0],0]],
 
-  [[C4,R1,RIGHT,[RIGHT,0,0],0],
-    [C5,R2,LEFT, [LEFT,0,0],0]],
+//   [[C4,R1,RIGHT,[RIGHT,0,0],0],
+//     [C5,R2,LEFT, [LEFT,0,0],0]],
 
 
-  // [[C4,R2,RIGHT,[0,0,0],0],
-  //   [C5,R1,LEFT, [LEFT,FRONT,0],0],
-  //   [C5,R2,LEFT, [0,0,0],0]],
+//   // [[C4,R2,RIGHT,[0,0,0],0],
+//   //   [C5,R1,LEFT, [LEFT,FRONT,0],0],
+//   //   [C5,R2,LEFT, [0,0,0],0]],
 
-   [[T0,R2,RIGHT,[0,BACK,0],0],
-    [T1,R1,LEFT, [0,FRONT,0],0],
-    [T1,R2,LEFT, [0,BACK,0],0],
-    [T0,R2,LEFT, [0,BACK,0],0]
-    ],
+//    [[T0,R2,RIGHT,[0,BACK,0],0],
+//     [T1,R1,LEFT, [0,FRONT,0],0],
+//     [T1,R2,LEFT, [0,BACK,0],0],
+//     [T0,R2,LEFT, [0,BACK,0],0]
+//     ],
 
-   [[T0,R2,RIGHT,[0,0,0],0],
-    [T1,R2,LEFT, [0,0,0],0]],
+//    [[T0,R2,RIGHT,[0,0,0],0],
+//     [T1,R2,LEFT, [0,0,0],0]],
 
    ];
 //define Spical border Hull to make border pretty

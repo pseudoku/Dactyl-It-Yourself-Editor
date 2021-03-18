@@ -150,7 +150,6 @@ ColumnOrigin = [//[translation vec]       [Global Rot]    [Local Rot]
                ];
 
  //ThumbShift  = [[2,-12, 0],[ 0, -5, -5],[ 0, 0, 0]]; //global transform for thumb cluster to jog as whole rather than editing origin
-//ThumbShift  = [[-10,-16, 5],[ 0, -5, -3],[ 0, 0, 0]]; //global transform for thumb cluster to jog as whole rather than editing origin
 ThumbShift  = [[-10,-16, 5],[ 0, -5, -3],[ 0, 0, 0]];
 
 //-------  and adjustment parameters

@@ -5,11 +5,14 @@ include <SRC/DIYBuilder.scad>
 //include <SRC/Layouts/Darrenph1/D-Warp.scad>                // (6x4)+[trichord+1]   Tangental Home Row Cherry Cap Height.
 //include <SRC/Layouts/Pseudoku/MiniWarp.scad>             // (5x3)+[trichord]     Utility Event Horrizon    Status:Complete no build test
 include <SRC/Layouts/Smeeba/GiGi_Smeeba.scad>
+//include <SRC/Layouts/Smeeba/GiGi_Smeeba(Keyholes).scad>
+//include <SRC/Layouts/Smeeba/SiSi_Smeeba.scad>
+//include <SRC/Layouts/Smeeba/SiSi_Smeeba(Keyholes).scad>
+//include <SRC/Layouts/Smeeba/FlapFlap_Smeeba.scad>
 //include <SRC/Layouts/Smeeba/MiniWarp_Smeeba.scad>
-//include <SRC/Layouts/Smeeba/HypoWarp_Smeeba_TriCord.scad>
+//include <SRC/Layouts/Smeeba/HypoWarp_Smeeba.scad>
 
 //still need to update flies
-//include <SRC/Layouts/Pseudoku/GiGi_Choc.scad>            // 6x2+[021]        Steno Dreamer Original Version with thumb cluster
 //include <SRC/Layouts/Pseudoku/GiGi_Trichord.scad>        // 5x2+[trichord]   Alternate Thumb cluster prioritizing trichord comfort and more naturla finger spread
 //include <SRC/Layouts/Pseudoku/Epigrammatic.scad>         // (4x2+3)+[0111] chopped thumb cluster and Trackball
 
