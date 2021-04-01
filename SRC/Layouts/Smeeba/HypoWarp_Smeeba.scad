@@ -150,13 +150,14 @@ ColumnOrigin = [//[translation vec]       [Global Rot]    [Local Rot]
                ];
 
  //ThumbShift  = [[2,-12, 0],[ 0, -5, -5],[ 0, 0, 0]]; //global transform for thumb cluster to jog as whole rather than editing origin
-ThumbShift  = [[-10,-16, 5],[ 0, -5, -3],[ 0, 0, 0]];
+//ThumbShift  = [[-10,-16, 5],[ 0, -5, -3],[ 0, 0, 0]];
+ThumbShift  = [[12,-16, 15],[ 0, -5,-3],[ 0, 0, 0]];
 
 //-------  and adjustment parameters
 
 //row loop setter
 //              C0:i1 C1:i2 C2:i3  C3:m  C4:r C5:p1 C6:p2 C7:p3 T0:Ot T1:OM T2:Md  T3:IM  T4:In
-RowInits    = [   R2,    R1,   R1,   R0,   R0,   R1,   R1,   R1,   R2,   R2,    R1,   R1,    R0]; //set which Row to begin
+RowInits    = [   R2,    R1,   R1,   R1,   R1,   R1,   R1,   R1,   R2,   R2,    R1,   R1,    R0]; //set which Row to begin
 RowEnds     = [   R2,    R3,   R3,   R3,   R3,   R3,   R3,   R3,   R2,   R2,    R2,   R1,    R0]; //set which Row to end
 
 //Row transforms
@@ -297,12 +298,12 @@ Sborder = //color "Crimson"
   [[C4, RowEnds[C4], false,FRONT, [RIGHT,0,0], [1,RScale,1]], //fill gap between general border and Bottom Enclosure near C4 - C7
    [C5, RowEnds[C5], false,FRONT, [RIGHT,0,0], [1,RScale,1]]],
  //back door
-  [[C1, RowInits[C1], false,BACK, [RIGHT,0,0], [1,RScale,1]],
-   [C2, RowInits[C2], false,BACK, [0,0,0],     [1,RScale,1]],
-   [C3, RowInits[C3], false,BACK, [LEFT,0,0],  [1,RScale,1]]],
+  // [[C1, RowInits[C1], false,BACK, [RIGHT,0,0], [1,RScale,1]],
+  //  [C2, RowInits[C2], false,BACK, [0,0,0],     [1,RScale,1]],
+  //  [C3, RowInits[C3], false,BACK, [LEFT,0,0],  [1,RScale,1]]],
 
-  [[C3, RowInits[C3], false,BACK, [0,0,0],    [1,RScale,1]],
-   [C4, RowInits[C4], false,BACK, [LEFT,0,0], [1,RScale,1]]],
+  // [[C3, RowInits[C3], false,BACK, [0,0,0],    [1,RScale,1]],
+  //  [C4, RowInits[C4], false,BACK, [LEFT,0,0], [1,RScale,1]]],
  ];
 
 //define Spical border Hull to join Column and Thumb Cluster
@@ -509,24 +510,24 @@ Eborder = //color green
     [//T2 corner ALT
       [[T2, R1, false,BACK,            [RIGHT,0,BOTTOM], [1,RScale,1]],
        [T2, R1,  true,RIGHT,           [0,BACK,BOTTOM],  [RScale,1,1]],
-       [C3, R0, false,BACK,            [LEFT,0,BOTTOM], [1,RScale,1]]],
+       [C3, R1, false,BACK,            [LEFT,0,BOTTOM], [1,RScale,1]]],
       [[T2, R1, false,BACK,            [RIGHT,0,BOTTOM], [1,EScale,1]],
-       [C3, R0, false,BACK+BackOffset, [LEFT,0,BOTTOM], [1,EScale,1]]],
+       [C3, R1, false,BACK+BackOffset, [LEFT,0,BOTTOM], [1,EScale,1]]],
       [0,0,0],
       true
     ],
     [//C3R0 C4R1 BACK ALT
-      [[C3, R0, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]],
-       [C4, R0, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]]],
-      [[C3, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]],
-       [C4, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]]],
+      [[C3, R1, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]],
+       [C4, R1, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]]],
+      [[C3, R1, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]],
+       [C4, R1, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]]],
       [0,0,0],
       false
     ],
     [//C4R0 C5R1 BACK
-      [[C4, R0, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]],
+      [[C4, R1, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]],
        [C5, R1, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]]],
-      [[C4, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]],
+      [[C4, R1, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]],
        [C5, R1, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]]],
       [0,0,0],
       true

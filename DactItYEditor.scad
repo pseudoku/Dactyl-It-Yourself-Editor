@@ -4,13 +4,14 @@ include <SRC/DIYBuilder.scad>
 //include <SRC/Layouts/Pseudoku/HypoWarp_Choc.scad>        // (6x3+2)+[trichord+1] Hypothetical Rhetoric.
 //include <SRC/Layouts/Darrenph1/D-Warp.scad>                // (6x4)+[trichord+1]   Tangental Home Row Cherry Cap Height.
 //include <SRC/Layouts/Pseudoku/MiniWarp.scad>             // (5x3)+[trichord]     Utility Event Horrizon    Status:Complete no build test
-include <SRC/Layouts/Smeeba/GiGi_Smeeba.scad>
+//include <SRC/Layouts/Smeeba/GiGi_Smeeba.scad>
 //include <SRC/Layouts/Smeeba/GiGi_Smeeba(Keyholes).scad>
+//include <SRC/Layouts/Smeeba/GiGi_Smeeba_2.scad>
 //include <SRC/Layouts/Smeeba/SiSi_Smeeba.scad>
 //include <SRC/Layouts/Smeeba/SiSi_Smeeba(Keyholes).scad>
 //include <SRC/Layouts/Smeeba/FlapFlap_Smeeba.scad>
 //include <SRC/Layouts/Smeeba/MiniWarp_Smeeba.scad>
-//include <SRC/Layouts/Smeeba/HypoWarp_Smeeba.scad>
+include <SRC/Layouts/Smeeba/HypoWarp_Smeeba.scad>
 
 //still need to update flies
 //include <SRC/Layouts/Pseudoku/GiGi_Trichord.scad>        // 5x2+[trichord]   Alternate Thumb cluster prioritizing trichord comfort and more naturla finger spread
