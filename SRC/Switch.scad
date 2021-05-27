@@ -1,6 +1,6 @@
 //Enum Switch Type
 MX   = 0;  // Generic MX
-Choc = 1;  // Low profile 
+Choc = 1;  // Low profile
 Alps = 2;  // For Your Superiority Complex's Needs
 
 //Switch cutawy Type
@@ -142,8 +142,8 @@ module Switch(switchScale= [1,1,1], CapColor = "ivory", StemColor = "black", cli
           color(StemColor)translate([0,1,4])cube([3,5,3], center = true);
           color("DarkSlateGray")translate([0,0,-1])cube([13,14,2,],center = true);
           color("DarkSlateGray")translate([0,0,-2-2.5])cylinder(d=3.3, 2.5);
-          color("DarkSlateGray")translate([5,0,-2-2.5])cylinder(d=1.6, 2.5); 
-          color("DarkSlateGray")translate([-5,0,-2-2.5])cylinder(d=1.6, 2.5); 
+          color("DarkSlateGray")translate([5,0,-2-2.5])cylinder(d=1.6, 2.5);
+          color("DarkSlateGray")translate([-5,0,-2-2.5])cylinder(d=1.6, 2.5);
 
           //cap
           scale(switchScale)color(CapColor)hull(){
@@ -203,9 +203,9 @@ module Keyhole(tol = .1, cutThickness = .5, clipLength = 0, type = MX, boffsets 
     translate([0,0,-1.25])difference(){
       union(){
         translate([0,0,1.25])cube([holeLength, holeLength, plate_thickness+tol], center =true);
-        translate([0,0,.1-cutThickness/2])cube([holeLength+boffsets, holeLength+boffsets, plate_thickness+cutThickness], center =true);  
+        translate([0,0,.1-cutThickness/2])cube([holeLength+boffsets, holeLength+boffsets, plate_thickness+cutThickness], center =true);
       }
-      
+
       union(){
         if (clipLength != 0){
           translate([0, -sign(clipLength)*7.8-clipLength, 0])cube([20, 15.6, 40], center = true);
@@ -216,9 +216,9 @@ module Keyhole(tol = .1, cutThickness = .5, clipLength = 0, type = MX, boffsets 
     translate([0,0,-1.25])difference(){
       union(){
         translate([0,0,1.25])cube([holeLenghtChoc, holeLenghtChoc, plate_thickness+tol], center =true);
-        translate([0,0,.1-cutThickness/2])cube([holeLength+boffsets, holeLength+boffsets, plate_thickness+cutThickness], center =true);  
+        //translate([0,0,.1-cutThickness/2])cube([holeLength+boffsets, holeLength+boffsets, plate_thickness+cutThickness], center =true);
       }
-      
+
       union(){
         if (clipLength != 0){
           translate([0, -sign(clipLength)*7.8-clipLength, 0])cube([20, 15.6, 40], center = true);
@@ -241,7 +241,7 @@ module Keyhole(tol = .1, cutThickness = .5, clipLength = 0, type = MX, boffsets 
         if (clipLength != 0){
           translate([0, -sign(clipLength)*7.8-clipLength, 0])cube([20, 15.6, 40], center = true);
         }
-      }    
+      }
     }
   }
 }
