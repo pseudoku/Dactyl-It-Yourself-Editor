@@ -7,10 +7,9 @@ include <SRC/DIYBuilder.scad>
 
 //include <SRC/Layouts/Darrenph1/D-Warp.scad>                // (6x4)+[trichord+1]   Tangental Home Row Cherry Cap Height.
 
-//include <SRC/Layouts/Smeeba/GiGi_Smeeba.scad>
-include <SRC/Layouts/Smeeba/GiGi_Trichord_Smeeba.scad>
-//include <SRC/Layouts/Smeeba/SiSi_Smeeba.scad>
-//include <SRC/Layouts/Smeeba/MiniWarp_Smeeba.scad>
+//include <SRC/Layouts/Smeeba/GiGi.scad>
+include <SRC/Layouts/Smeeba/GiGi_Trichord.scad>
+//include <SRC/Layouts/Smeeba/GiGi_Trichord_One_Star.scad>
 
  $fn = 16;   //resolution
 
@@ -18,7 +17,7 @@ include <SRC/Layouts/Smeeba/GiGi_Trichord_Smeeba.scad>
 rotate([0,0,360*$t]){ // for animation
 
 /*1. Top Plate*/
-  mirror([100,0,0]){ //[100] for Left side
+  mirror([0,0,0]){ //[100] for Left side
     color(){
       BuildTopPlate(
         Keyhole          = true,  // keyhole cuts + cuts space above plate to remove artifacts frod custod border and enclosure build

@@ -1012,9 +1012,9 @@ module BuildKeyWells () {
   }
 
   //switch top cuts
-  // for(cols = colRange)BuildColumn(PlateDim[2]+PBuffer+10, 0, TOP, col = cols, rowInit = RowInits[cols], rowEnd = RowEnds[cols]);
-  // BuildColumn(PlateDim[2]+PBuffer+10, 0, TOP, col = CStart, rowInit = RowInits[CStart], rowEnd = RowEnds[CStart], offset2 = 18, adjust = LEFT);
-  // BuildColumn(PlateDim[2]+PBuffer+10, 0, TOP, col = CEnd, rowInit = RowInits[CEnd], rowEnd = RowEnds[CEnd],offset2 = 18, adjust = RIGHT);
+  for(cols = colRange)BuildColumn(PlateDim[2]+PBuffer+10, 0, TOP, col = cols, rowInit = RowInits[cols], rowEnd = RowEnds[cols]);
+  BuildColumn(PlateDim[2]+PBuffer+10, 0, TOP, col = CStart, rowInit = RowInits[CStart], rowEnd = RowEnds[CStart], offset2 = 18, adjust = LEFT);
+  BuildColumn(PlateDim[2]+PBuffer+10, 0, TOP, col = CEnd, rowInit = RowInits[CEnd], rowEnd = RowEnds[CEnd],offset2 = 18, adjust = RIGHT);
 }
 
 module BuildSet (switchType = SwitchTypes, capType = DSA, colors, stemcolor, switchH = 0) //place objects on key position
