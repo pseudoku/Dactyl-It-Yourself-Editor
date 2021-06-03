@@ -10,8 +10,9 @@ include <SRC/DIYBuilder.scad>
 //include <SRC/Layouts/Smeeba/GiGi.scad>
 include <SRC/Layouts/Smeeba/GiGi_Trichord.scad>
 //include <SRC/Layouts/Smeeba/GiGi_Trichord_One_Star.scad>
+//include <SRC/Layouts/Smeeba/GiGi_Trichord_Warp.scad>
 
- $fn = 16;   //resolution
+ $fn = 18;   //resolution
 
 //##################     Main Calls    ##################
 rotate([0,0,360*$t]){ // for animation
@@ -21,17 +22,18 @@ rotate([0,0,360*$t]){ // for animation
     color(){
       BuildTopPlate(
         Keyhole          = true,  // keyhole cuts + cuts space above plate to remove artifacts frod custod border and enclosure build
-        Enclosure        = true,   // light pink if you want to work on layouts turn off for speed
-        BottomPlateCuts  = true,  // cuts bottom plate recess on enclosure. turn off while working on enclosure to reduce error and speed
-        ThumbJoint       = true,   // salmon color turn on thu+mb and column joint module
-        CustomBorder     = true,   // Red manually defined custom border
-        ColoredSection   = true    // Color border by module to visiualize during edit/debug
+        Enclosure        = false,   // light pink if you want to work on layouts turn off for speed
+        BottomPlateCuts  = false,  // cuts bottom plate recess on enclosure. turn off while working on enclosure to reduce error and speed
+        ThumbJoint       = false,   // salmon color turn on thu+mb and column joint module
+        CustomBorder     = false,   // Red manually defined custom border
+        ColoredSection   = false,    // Color border by module to visiualize during edit/debug
+        BuildConnectors  = false  // build connecters between individual keys in a column and connecters between the columns (default: false)
       );
     }
 
   //un comment to build bottom plate
 
-  //#BuildBottomPlate(struct = Eborder, hullList = Hstruct, Mount = true, JackType =true, MCUType = true);
+  //#BuildBottomPlate(struct = Eborder, hullList = Hstruct, Mount = false, JackType =false, MCUType = false);
 
   /*3. caps for visualization */
     rotate(tenting)translate([0,0,plateHeight]){

@@ -58,8 +58,8 @@ TopHeight      = 0;      // Reference Origin of the keyswitch
 BottomHeight   = 3.6;    // height adjustment used for R0 keys for cherry types
 
 SwitchWidth    = 15.6;   // switch width
-PlateOffsets   = 3.5;    // additional pading on width of plates
-PlateOffsetsY  = 3.5;    // additional padding on lenght of plates
+PlateOffsets   = 2.5;    // additional pading on width of plates
+PlateOffsetsY  = 2.5;    // additional padding on lenght of plates
 PlateThickness = 3.5;     // switch plate thickness
 PlateDim       = [SwitchWidth+PlateOffsets, SwitchWidth+PlateOffsetsY, PlateThickness];
 PlateHeight    = 6.6;    //
@@ -89,7 +89,7 @@ ThumbOffset = .2;
 
 //-----     Tenting Parameters
 tenting     = [-10,20,0]; // tenting for enclusoure
-plateHeight = 28;       // height adjustment for enclusure
+plateHeight = 25;       // height adjustment for enclusure
 
 //-----     Trackball Parameters
 trackR      = 17;        //trackball raidus  M570: 34mm, Ergo and Kennington: 40mm
@@ -109,7 +109,7 @@ RER         = 20;
 //
 bpThickness =  3; //Bottom Plate Thickness
 midHeight   = -7; // used to generate hull between mount and enclosure
-mountScrew  = [[-15,-30,0],[52,-6,0],[-38,38,0],[44,32,0]];
+mountScrew  = [[-15,-30,0],[52,-6,0],[-38,38,0],[44,35,0]];
 mountHull   = [20,30,8,13];
 mountDia    = 3.0; // 3.2mm
 
@@ -285,8 +285,8 @@ Sborder = //color "Crimson"
 
    //BACK
 
-  [[C1, RowInits[C1], false,  BACK,  [LEFT,0,0],   [1,RScale,1]], //fill gap between general border and Bottom Enclosure near C1
-   [C1, RowInits[C1],  true,  LEFT,  [0,BACK,0],  [RScale,1,1]]],
+  // [[C1, RowInits[C1], false,  BACK,  [LEFT,0,0],   [1,RScale,1]], //fill gap between general border and Bottom Enclosure near C1
+  //  [C1, RowInits[C1],  true,  LEFT,  [0,BACK,0],  [RScale,1,1]]],
 
   [[C2, RowInits[C2], false, BACK,      [0,0,0], [1,RScale,1]], //fill gap between general border and Bottom Enclosure near C3
     [C3,RowInits[C3], false, BACK,   [LEFT,0,0],     [1,RScale,1]]],
@@ -323,11 +323,6 @@ Sborder = //color "Crimson"
 
   [[T0,  RowEnds[T0], false, FRONT,     [0,0,0],    [1,RScale,1]]],
 
-  [[T0,  RowEnds[T0], false, FRONT, [RIGHT,0,0],[1,RScale,1]],
-   [T1,  RowEnds[T1], false, FRONT,  [LEFT,0,0], [1,RScale,1]]],
-
-   [[T1, RowEnds[T1], false, FRONT+FrontOffset, [0,0,0], [1,RScale,1]]],
-
   //Left
 
   [[T1, RowInits[T1],  true, LEFT,      [0,0,0],    [RScale,1,1]],
@@ -345,11 +340,10 @@ Sborder = //color "Crimson"
    [T1,  RowEnds[T1],  true, RIGHT, [0,BACK, 0],   [1,1,1]]],
 
   [[T1,  RowEnds[T1],  true, RIGHT, [0,BACK, 0],   [1,1,1]],
-  [T1,   RowEnds[T1],  true, RIGHT,[0,FRONT, 0],  [1,1,1]],],
+  [T1,   RowEnds[T1],  true, RIGHT,[0,FRONT, 0],  [1,1,1]]],
 
-  [[T1,  RowEnds[T1],  true, RIGHT,[0,FRONT, 0],  [1,1,1]],
-  [C1,  RowInits[C1], false, BACK,   [LEFT,0,0],   [1,RScale,1]],
-  ],
+  // [[T1,  RowEnds[T1],  true, RIGHT,[0,FRONT, 0],  [1,1,1]],
+  // [C1,  RowInits[C1], false, BACK,   [LEFT,0,0],   [1,RScale,1]]],
 
  //Back
 
@@ -366,17 +360,17 @@ Sborder = //color "Crimson"
 TCJoints = //color "Salmon"
  [
    [
+    [T1,  RowEnds[T1],  true, RIGHT,   [0,FRONT,0],  [1,1,1]],
+    [T0,  RowEnds[T0],  false, LEFT,   [0,0,0],      [1,RScale,1]],
     [C1, RowInits[C1], false, BACK,    [LEFT,0,0],   [1,RScale,1]],
     [C1, RowInits[C1],  true, LEFT,    [0,BACK,0],   [RScale,1,1]],
-    [T1,           R2,  false, FRONT,   [0,0,0], [1,RScale,1]],
-    [T0,           R2,  false, FRONT,   [LEFT,0,0], [1,RScale,1]],
    ],
 
    [
+    [T1,  RowEnds[T1],  true, RIGHT,   [0,FRONT, 0],  [1,1,1]],
     [C1, RowInits[C1], false, BACK,    [LEFT,0,0],   [1,RScale,1]],
     [C1, RowInits[C1],  true, LEFT,    [0,BACK,0],   [RScale,1,1]],
-    [C2, RowInits[C2], false, BACK,    [LEFT,0,0],   [1,RScale,1]],
-    [T1,           R2,  false, FRONT,   [0,0,0], [1,RScale,1]],
+    [C2, RowInits[C2], false, BACK,    [LEFT,0,0],   [1,RScale,1]]
    ],
 
  ];
@@ -422,9 +416,9 @@ TBborder = //color "Yellow"
    Bottom structure is also used to generate bottom plates? may need to seperate due to concavity of border...
 */
 
-//TODO simplify scale call
 Eborder =
    [//[[Col, Row, len = true, Jog direction1, HullFace, Scale], ...],
+
     //LEFT Section
     [//T1R1 Side 0
       [[T1,  R1,  true, LEFT, [0,BACK,0],      [RScale,1,1]],
@@ -519,10 +513,10 @@ Eborder =
     ],
 
     [//C4R3 FRONT to C5R3
-      [[C4, RowEnds[C3], false,FRONT,             [RIGHT,0,BOTTOM], [1,RScale,1]],
-       [C5, RowEnds[C4], false,FRONT,             [RIGHT,0,BOTTOM], [1,RScale,1]]],
-      [[C4, RowEnds[C3], false,FRONT+FrontOffset, [RIGHT,0,BOTTOM], [1,EScale,1]],
-       [C5, RowEnds[C4], false,FRONT+FrontOffset, [RIGHT,0,BOTTOM], [1,EScale,1]]],
+      [[C4, RowEnds[C4], false,FRONT,             [RIGHT,0,BOTTOM], [1,RScale,1]],
+       [C5, RowEnds[C5], false,FRONT,             [RIGHT,0,BOTTOM], [1,RScale,1]]],
+      [[C4, RowEnds[C4], false,FRONT+FrontOffset, [RIGHT,0,BOTTOM], [1,EScale,1]],
+       [C5, RowEnds[C5], false,FRONT+FrontOffset, [RIGHT,0,BOTTOM], [1,EScale,1]]],
       [0,0,0]
     ],
 
@@ -584,25 +578,28 @@ Eborder =
       [[C3, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]]],
       [0,0,0]
     ],
+
     [//T1R1 Side 20
-      [[T1, RowEnds[T1],  true,  RIGHT,             [0,BACK,BOTTOM], [1,1,1]],
-        [T1, RowEnds[T1],  true,  RIGHT,             [0,0,BOTTOM], [1,1,1]],
-       [C2, RowInits[C2], false, BACK,             [LEFT,0,BOTTOM], [1,RScale,1]]],
-      [[C3, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]]],
+      [[T1,  RowEnds[T1],  true, RIGHT, [0,BACK, 0],   [1,1,1]],
+      [T1,   RowEnds[T1],  true, RIGHT,[0,FRONT,0],  [1,1,-RScale + 1]],
+      [C2, RowInits[C2], false, BACK,    [LEFT,0,0],   [1,RScale,1]]],
+      [[C3, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]],],
       [0,0,0]
     ],
+
     [//C2 to C3R0 BACK
       [[C2, R1, false,BACK,                [0,0,BOTTOM], [1,RScale,1]]],
       [[C3, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]],],
       [0,0,0]
     ],
+
     [//C2 to C3R0 BACK
       [[C2, R1, false,BACK,                [0,0,BOTTOM], [1,RScale,1]],
-       [C3, R0, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]],
-      ],
+       [C3, R0, false,BACK,                [LEFT,0,BOTTOM], [1,RScale,1]],],
       [[C3, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]],],
       [0,0,0]
     ],
+
     [//C3R0 BACK
       [[C3, R0, false,BACK,                [0,0,BOTTOM], [1,RScale,1]]],
       [[C4, R0, false,BACK+BackOffset,     [LEFT,0,BOTTOM], [1,EScale,1]],
@@ -653,8 +650,7 @@ Hstruct =
    [0,1,2,3,20,21,22],
    [3,4,5,6,7,8,9,10,11,12,13,14,17],
    [3,17,18,23,24,25,26,27,28,29,30]
-
- ];
+  ];
 
 
 //-----     IGNORE IF YOU are not using Clipped switch

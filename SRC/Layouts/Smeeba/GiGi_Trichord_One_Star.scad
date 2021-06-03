@@ -518,12 +518,11 @@ Eborder =
       [0,0,0]
     ],
 
-    //**************
-    [//C3R3 FRONT to C4R3
-      [[C4, RowEnds[C3], false,FRONT,             [RIGHT,0,BOTTOM], [1,RScale,1]],
-       [C5, RowEnds[C4], false,FRONT,             [RIGHT,0,BOTTOM], [1,RScale,1]]],
-      [[C4, RowEnds[C3], false,FRONT+FrontOffset, [RIGHT,0,BOTTOM], [1,EScale,1]],
-       [C5, RowEnds[C4], false,FRONT+FrontOffset, [RIGHT,0,BOTTOM], [1,EScale,1]]],
+    [//C4R3 FRONT to C5R3
+      [[C4, RowEnds[C4], false,FRONT,             [RIGHT,0,BOTTOM], [1,RScale,1]],
+       [C5, RowEnds[C5], false,FRONT,             [RIGHT,0,BOTTOM], [1,RScale,1]]],
+      [[C4, RowEnds[C4], false,FRONT+FrontOffset, [RIGHT,0,BOTTOM], [1,EScale,1]],
+       [C5, RowEnds[C5], false,FRONT+FrontOffset, [RIGHT,0,BOTTOM], [1,EScale,1]]],
       [0,0,0]
     ],
 
