@@ -684,16 +684,18 @@ Eborder =
       [[C6, RowInits[C6], false,BACK+BackOffset,     [0,0,BOTTOM], [1,EScale,1]]],
       [0,0,0]
     ],
+    
   ];
 
 //Hull struct contain the Estruct array IDe to hull bottom plate: concavity exsits so blind hull will result in failuer
 Hstruct =
   [
-    [21,26,2,3,4,5,6,7,8,9,10,11],
-    [31,30,18],
-    [18,17,33],
-    [3,4,5,6,7,8,9,11,12,13,14,15,16,17],
-    [26,4,6]
+  [0,1,3,9,10,22],
+  [11,13,17,25], 
+  [14,15,16,25], 
+  [17,18,19,30],
+   [0,11,20,21],
+   [5,20,24]
  ];
 
 
