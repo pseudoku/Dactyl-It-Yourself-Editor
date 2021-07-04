@@ -114,7 +114,7 @@ RER         = 20;
 //
 bpThickness =  3; //Bottom Plate Thickness
 midHeight   = -7; // used to generate hull between mount and enclosure
-mountScrew  = [[-15,-30,0],[52,-6,0],[-38,38,0],[42,34,0]];
+mountScrew  = [[-15,-30,0],[52,-6,0],[-23,38,0],[42,34,0]];
 mountHull   = [20,30,8,13];
 mountDia    = 3.0; // 3.2mm
 

@@ -7,10 +7,10 @@ include <SRC/DIYBuilder.scad>
 
 //include <SRC/Layouts/Darrenph1/D-Warp.scad>                // (6x4)+[trichord+1]   Tangental Home Row Cherry Cap Height.
 
-//include <SRC/Layouts/Smeeba/GiGi.scad>
+include <SRC/Layouts/Smeeba/GiGi.scad>
 //include <SRC/Layouts/Smeeba/GiGi_Trichord.scad>
 //include <SRC/Layouts/Smeeba/GiGi_Trichord_One_Star.scad>
-include <SRC/Layouts/Smeeba/GiGi_Trichord_One_Index.scad>
+//include <SRC/Layouts/Smeeba/GiGi_Trichord_One_Index.scad>
 //include <SRC/Layouts/Smeeba/GiGi_Trichord_Warp.scad>
 
  $fn = 18;   //resolution
