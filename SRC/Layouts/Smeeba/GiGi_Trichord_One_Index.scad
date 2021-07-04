@@ -118,17 +118,17 @@ mountScrew  = [[-15,-30,0],[52,-6,0],[-38,38,0],[42,34,0]];
 mountHull   = [20,30,8,13];
 mountDia    = 3.0; // 3.2mm
 
-MCULoc      = [-23,26,7.1];
+MCULoc      = [-15,280,7.1];
 MCUDim      = [18.5, 32.5, 1.2];
 
 resetLoc    = [0,0,0];
 
-USBLoc      = [-23,22.5-5+32.5/2,6+1.2];
+USBLoc      = [-15,22.5-5+36.5/2,6+1.2];
 
 // TRRS Jack
-JackLoc     = [-38.5,-4,7.5];
+JackLoc     = [-10,20,7.5];
 JackDim     = [18,6,10];
-JackAng     = [0,0,159.5];
+JackAng     = [0,0,190];
 
 //-------  LAYOUT parameters
 //column loop setter
@@ -321,6 +321,9 @@ Sborder = //color "Crimson"
    [C2, RowInits[C2],  true, LEFT,  [0,FRONT,0], [RScale,1,1]]],
 
   [[C2, RowInits[C2],  true, LEFT,      [0,0,0], [RScale,1,1]]],
+
+  [[C2,  RowInits[C2], false, BACK,  [LEFT,0,0], [1,RScale,1]],
+   [C2,  RowInits[C2],  true, LEFT,      [0,0,0], [RScale,1,1]]],
 
   [[C5,  RowEnds[C5], false, FRONT,  [RIGHT,0,0], [1,RScale,1]],
    [C5,  RowEnds[C5],  true, RIGHT,      [0,0,0], [RScale,1,1]]],
