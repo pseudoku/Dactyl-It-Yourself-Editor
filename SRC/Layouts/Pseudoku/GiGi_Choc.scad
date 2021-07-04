@@ -80,7 +80,10 @@ BackOffset  = -.5;
 ThumbOffset = .2;
 
 //-----     Tenting Parameters
-tenting     = [0,17,0]; // tenting for enclusoure
+// tenting     = [0,17,0]; // tenting for enclusoure
+// plateHeight = 22;       // height adjustment for enclusure
+
+tenting     = [0,0,0]; // tenting for enclusoure
 plateHeight = 22;       // height adjustment for enclusure
 
 //-----     Trackball Parameters

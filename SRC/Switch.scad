@@ -41,8 +41,7 @@ bottom_peg_chamfer = .5;
 bottom_peg_side_scale = 1.7/4;
 
 //dummy key switch with caps to check position
-module Switch(switchScale= [1,1,1], CapColor = "ivory", StemColor = "black", clipLength = 0, type = Choc, Caps = DSA, Row = 0)
-{
+module Switch(switchScale= [1,1,1], CapColor = "ivory", StemColor = "black", clipLength = 0, type = Choc, Caps = DSA, Row = 0){
   if (type == MX){
     difference(){
       union(){
@@ -132,9 +131,6 @@ module Switch(switchScale= [1,1,1], CapColor = "ivory", StemColor = "black", cli
         translate([0,0,1.75]){
           difference(){
             translate([0,0,0.5])cube([15,15,1], center = true);
-            //cuts
-        //    translate([15/2-1/2,0,.5])cube([1,10.5,2], center = true);
-        //    translate([-15/2+1/2,0,.5])cube([1,10.5,2], center = true);
           }
 
           translate([0,0,1.5])cube([13,13,2], center = true);
@@ -159,25 +155,20 @@ module Switch(switchScale= [1,1,1], CapColor = "ivory", StemColor = "black", cli
   }
 }
 
-module Keyhole(tol = .1, cutThickness = .5, clipLength = 0, type = MX, boffsets = 1)
-{
+module Keyhole(tol = .1, cutThickness = .5, clipLength = 0, type = MX, boffsets = 1, plate_thickness = 3.5){
   $fn = 12;
-  bottom_length = 13.9; //should be 14 for mx
-  plate_thickness = 3.51; //mm
-  holeLength = bottom_length+tol*2;
-  holeLenghtChoc = 13.8+tol*2;
+  bottom_length = 13.85; //should be 14 for mx
+  holeLength = bottom_length+(tol*2);
+
   //latch nibs
   nib_radius= 1;
   nib_length = 3;
   if(type == MX){
     translate([0,0,-1.25])difference(){
       translate([0,0,1.25])cube([holeLength, holeLength, plate_thickness+tol], center =true);
-
-
-      if (clipLength != 0){
-        translate([0, -sign(clipLength)*7.8-clipLength, 0])cube([20, 15.6, 40], center = true);
-      }
-
+      // if (clipLength != 0){
+      //   translate([0, -sign(clipLength)*7.8-clipLength, 0])cube([20, 15.6, 40], center = true);
+      // }
     }
   }
   else if(type == Choc){

@@ -1,12 +1,5 @@
 use <Switch.scad> //modules for switches and key holes generation
-use <sweep.scad>
-use <scad-utils/transformations.scad>
-use <scad-utils/morphology.scad>
-use <scad-utils/lists.scad>
-use <scad-utils/shapes.scad>
-use <scad-utils/trajectory.scad>
-use <scad-utils/trajectory_path.scad>
-use <skin.scad>
+
 /*
 //TODOs
 
@@ -17,37 +10,10 @@ use <skin.scad>
 * update major layouts to work with new build calls.
 
 */
-module rotate(angle)            // built-in rotate is inaccurate for 90 degrees, etc
-{
- a = len(angle) == undef ? [0, 0, angle] : angle;
- cx = cos(a[0]);
- cy = cos(a[1]);
- cz = cos(a[2]);
- sx = sin(a[0]);
- sy = sin(a[1]);
- sz = sin(a[2]);
- multmatrix([
-  [ cy * cz, cz * sx * sy - cx * sz, cx * cz * sy + sx * sz, 0],
-  [ cy * sz, cx * cz + sx * sy * sz,-cz * sx + cx * sy * sz, 0],
-  [-sy,      cy * sx,                cx * cy,                0],
-  [ 0,       0,                      0,                      1]
- ]) children();
-}
 
 //################ Main Builder ############################
-module BuildTopPlate(Keyhole = false, Enclosure = true, BottomPlateCuts  = true, Trackball = false, ThumbJoint = false, Border = false, PrettyBorder = false, ColoredSection = false, CustomBorder = false, BuildConnectors = true)
+module BuildTopPlate(Keyhole = false, Enclosure = true, BottomPlateCuts  = true, Trackball = false, ThumbJoint = false, Border = false, PrettyBorder = false, ColoredSection = false, CustomBorder = false, BuildConnectors = true, BuildWells = true)
 {
-  //Submodules
-  //TODO: change scope of submodules and remove duplicates now that calls are merged
-  module modPlate (Hulls = true, thickBuff = 0, sides = TOP, refSides = BOTTOM, hullSides = [0,0,0], row, col){//shorthand
-
-    if (SwitchOrientation[row][col] == true){
-      PlaceRmCn(row, col)scale([CapScale[row][col],1,1])modulate(PlateDim,[0,sign(Clipped[row][col]), sides],PlateDim-[0,abs(Clipped[row][col]),-PBuffer-thickBuff], [0,-sign(Clipped[row][col]),refSides], Hull = Hulls, hullSide = hullSides);
-    }
-    else{
-      PlaceRmCn(row, col)scale([1,CapScale[row][col],1])modulate(PlateDim,[sign(Clipped[row][col]), 0, sides], PlateDim-[abs(Clipped[row][col]),0,-PBuffer-thickBuff], [-sign(Clipped[row][col]), 0, refSides], Hull = Hulls, hullSide = hullSides);
-    }
-  }
 
   module modWeb (Hulls = true,  sides = 0, refSides = 0, hullSides = [0,0,0], row, col){
     if(SwitchOrientation[row][col] == true){
@@ -62,18 +28,20 @@ module BuildTopPlate(Keyhole = false, Enclosure = true, BottomPlateCuts  = true,
   difference(){
     union(){
       rotate(tenting)translate([0,0,plateHeight]){//move plate to tent positions
-        for (cols = colRange){
-          BuildColumn(PlateDim[2]+PBuffer, 0, BOTTOM, col = cols, rowInit = RowInits[cols], rowEnd = RowEnds[cols], connectKeys = BuildConnectors);
-        }
-        //plate binding is done via layouts. most cases require custom config and generalization does not suffice. if it does than just use dactyl
-        if(BuildConnectors){
-          for (i=[0:len(PBind)-1]){
-            BindColums(TopAlignment = BOTTOM, BufferAlignment1 = PBind[i][1], BufferAlignment2 = PBind[i][2], cols= PBind[i][0]);
+        if(BuildWells){
+          for (cols = colRange){
+            BuildColumn(PlateDim[2]+PBuffer, 0, BOTTOM, col = cols, rowInit = RowInits[cols], rowEnd = RowEnds[cols], connectKeys = BuildConnectors);
           }
-          for (i=[0:len(PlateCustomBind)-1]){
-            hull(){
-              for (j = [0:len(PlateCustomBind[i])-1]){
-                modWeb(Hulls = true,  sides = PlateCustomBind[i][j][4], refSides = PlateCustomBind[i][j][2], hullSides = PlateCustomBind[i][j][3], row=PlateCustomBind[i][j][1], col=PlateCustomBind[i][j][0]);
+          //plate binding is done via layouts. most cases require custom config and generalization does not suffice. if it does than just use dactyl
+          if(BuildConnectors){
+            for (i=[0:len(PBind)-1]){
+              BindColums(TopAlignment = BOTTOM, BufferAlignment1 = PBind[i][1], BufferAlignment2 = PBind[i][2], cols= PBind[i][0]);
+            }
+            for (i=[0:len(PlateCustomBind)-1]){
+              hull(){
+                for (j = [0:len(PlateCustomBind[i])-1]){
+                  modWeb(Hulls = true,  sides = PlateCustomBind[i][j][4], refSides = PlateCustomBind[i][j][2], hullSides = PlateCustomBind[i][j][3], row=PlateCustomBind[i][j][1], col=PlateCustomBind[i][j][0]);
+                }
               }
             }
           }
@@ -90,10 +58,6 @@ module BuildTopPlate(Keyhole = false, Enclosure = true, BottomPlateCuts  = true,
             if (ThumbJoint == true){
               color("Salmon")BuildCustomBorder(struct = TCJoints);
             }
-            if (Trackball == true){
-              color("Yellow")BuildTrackBorder(struct = TBborder);
-              translate(trackOrigin)rotate(trackTilt)TrackBall();
-            }
         }
         else {
           if (Border == true ){
@@ -104,10 +68,6 @@ module BuildTopPlate(Keyhole = false, Enclosure = true, BottomPlateCuts  = true,
           }
           if (ThumbJoint == true){
             BuildCustomBorder(struct = TCJoints);
-          }
-          if (Trackball == true){
-            BuildTrackBorder(struct = TBborder);
-            translate(trackOrigin)rotate(trackTilt)TrackBall();
           }
         }
       }
@@ -125,14 +85,11 @@ module BuildTopPlate(Keyhole = false, Enclosure = true, BottomPlateCuts  = true,
     //----- CUTS
 
     // Remove inter-columnar artifacts from borders and web joints
-    BindTopCuts(Struct = TopCuts, height = 1);
+    //BindTopCuts(Struct = TopCuts, height = 1);
 
     // Keyholes
     if(Keyhole == true){
       rotate(tenting)translate([0,0,plateHeight])BuildKeyWells(BuildConnectors); //cuttting keywell and switch top to remove artifacts
-    }
-    if (Trackball == true){
-      translate(trackOrigin)rotate(trackTilt)sphere(d=trackR*2+1.25);  //cuts must be after building enclosures
     }
 
     if(Enclosure == true && BottomPlateCuts == true){
@@ -924,97 +881,13 @@ module BuildBottomPlate(struct = Eborder, hullList = Hstruct, JackType = true, M
   }
 }
 
-//--- Misc
-//--- TrackBall
-module PCB(height = 8){
-  tol = .4;
-  PL = 21/2+tol;
-  PW = 18.6/2+tol;
-  PT = 4.1;
-  PCBT = 1.6;
-
-  //Prism
-  translate([0,0,-PT])linear_extrude(PT)rounding(r=8)polygon([[PL,PW],[-PL,PW],[-PL,-PW],[PL,-PW]]);
-  translate([-PL+6.5,0,.6])cube([2,4,1.2],center= true);
-  translate([PL-6.5,0,.6])cube([2,4,1.2],center= true);
-
-  //PCB
-  translate([0,0,-.8-PT])cube([29,21.5,height],center= true);
-  translate([24/2,0,-PT-PCBT-2])cylinder(d=1.6, 10);
-  translate([-24/2,0,-PT-PCBT-2])cylinder(d=1.6, 10);
-
-  //Apeture
-  translate([0,0,0])cylinder(d1=5, d2= 12, 4);
-}
-
-//Path functions for trackball holder
-  function oval_path(theta, phi, a, b, c, deform = 0) = [
-   a*cos(theta)*cos(phi), //x
-   c*sin(theta)*(1+deform*cos(theta)) , //
-   b*sin(phi),
-  ];
-
-  //oval path with linear angle offset
-  function oval_path2(theta, phi_init, a, b, c, d = 0, p = 1, deform = 0) = [
-   a*cos(theta)*cos(phi_init), //x
-   b*sin(theta)*(1+deform*cos(theta))*cos(phi_init + d * sin(theta*p)), //
-   c*sin(phi_init + d * sin(theta*p))
-  ];
-
-  //oval path with angle offset with hypersine
-  function oval_path3(theta, phi_init, a, b, c, d = 0, p = 1, deform = 0) = [
-   a*cos(theta)*cos(phi_init), //x
-   b*sin(theta)*(1+deform*cos(theta))*cos(phi_init + d * pow(sin(theta*p), 1)), //
-   c*sin(phi_init + d * pow(sin(theta*p), 3))
-  ];
-
-//shape functions
-function ellipse(a, b, d = 0) = [for (t = [0:step:360]) [a*cos(t), b*sin(t)*(1+d*cos(t))]]; //shape to
-
-// sweep generators
-
-module palm_track() {
-  a = trackR;
-  b = trackR;
-  c = trackR;
-  //Ellipsoid([20*2,25*2,60],[30*2,25*2,60], center = true);
-  function shape() = ellipse(3, 3);
-  function shape2() = ellipse(4, 6);
-  path_transforms =  [for (t=[0:step:180]) translation(oval_path3(t,20,a,c,b,30,1,0))*rotation([90,-20-20*sin(t),t])];
-  path_transforms2 =  [for (t=[0:step:180]) translation(oval_path3(t,70,b,a,c,6,1,0))*rotation([90,-70+5*sin(t),t])];
-//  path_transforms3 =  [for (t=[0:step:360]) translation(oval_path3(t,-5,a,c,b,-15,1,0))*rotation([90,20+15*cos(t),t])];
-  path_transforms3 =  [for (t=[0:step:180]) translation(oval_path3(t,-40,a,c,b,10,1,0))*rotation([90,40-10*sin(t),t])];
-  path_transforms4 =  [for (t=[180:step:360]) translation(oval_path3(t,-40,a,c,b,-35,1,0))*rotation([90,40+35*sin(t),t])];
-
- translate([0,0,0]){
-//  rotate([-90,0,0])sweep(shape(), path_transforms);
-//  rotate([90,0,-90])sweep(shape(), path_transforms2); //tip
-//  rotate([90,0,90])sweep(shape(), path_transforms2);  //tip
-  rotate([-30,0,0])sweep(shape2(), path_transforms3);
- }
- //support ring
- rotate([-30,0,0])sweep(shape2(), path_transforms4);
-}
-
-
-module TrackBall(){
-  difference(){
-    union(){
-     palm_track();
-     rotate(SensorRot)translate([0,0,-trackR+1])cube(PCBCaseDim,center= true); // pcb housing
-    }
-    rotate(SensorRot)translate([0,0,-38/2])PCB();
-//    #rotate(SensorRot)translate([0,0,-42/2])cylinder(d =1, 100); orientation check
-  }
-}
-
 //Key Switches and Caps
 module BuildKeyWells (BuildConnectors = true) {
   for(cols = colRange){
     for(rows = [RowInits[cols]:RowEnds[cols]]){
       PlaceRmCn(rows, cols){
         if(SwitchOrientation[rows][cols] == true){
-          Keyhole(tol = 0, clipLength = Clipped[rows][cols], cutThickness = 1, type = SwitchTypes[rows][cols], boffsets = holeOffset);
+          Keyhole(tol = 0, clipLength = Clipped[rows][cols], cutThickness = 1, type = SwitchTypes[rows][cols], boffsets = holeOffset, plate_thickness = PlateThickness);
         }else {
           rotate([0,0,-90])Keyhole(tol = 0, clipLength = Clipped[rows][cols], cutThickness = 1, type = SwitchTypes[rows][cols], boffsets = holeOffset);
         }
@@ -1026,4 +899,22 @@ module BuildKeyWells (BuildConnectors = true) {
   // for(cols = colRange)BuildColumn(PlateDim[2]+PBuffer+10, 0, TOP, col = cols, rowInit = RowInits[cols], rowEnd = RowEnds[cols], connectKeys = BuildConnectors);
   // BuildColumn(PlateDim[2]+PBuffer+10, 0, TOP, col = CStart, rowInit = RowInits[CStart], rowEnd = RowEnds[CStart], offset2 = 18, adjust = LEFT, connectKeys = BuildConnectors);
   // BuildColumn(PlateDim[2]+PBuffer+10, 0, TOP, col = CEnd, rowInit = RowInits[CEnd], rowEnd = RowEnds[CEnd],offset2 = 18, adjust = RIGHT, connectKeys = BuildConnectors);
+}
+
+module BuildSet (switchType = SwitchTypes, capType = DSA, colors, stemcolor, switchH = 0) //place objects on key position
+{
+  for(cols = [CStart:CEnd]){
+    for(rows = [RowInits[cols]:RowEnds[cols]]){
+      PlaceRmCn(rows, cols)
+      if(SwitchOrientation[rows][cols] == true){translate([0,0,switchH])Switch(switchScale = [CapScale[rows][cols],1,1], type = switchType[rows][cols], CapColor = colors,  Caps = capType, StemColor = stemcolor, clipLength = Clipped[rows][cols], Row = rows-1);}
+      else {translate([0,0,switchH])rotate([0,0,-90])Switch(switchScale = [CapScale[rows][cols],1,1],type = switchType[rows][cols], CapColor = colors, Caps = capType, StemColor = stemcolor, clipLength = Clipped[rows][cols], Row = rows-1);}
+    }
+  }
+  for(cols = [TStart:TEnd]){
+    for(rows = [RowInits[cols]:RowEnds[cols]]){
+      PlaceRmCn(rows, cols)
+      if(SwitchOrientation[rows][cols] == true){translate([0,0,switchH])scale([1.0,1.0,1])Switch(switchScale = [CapScale[rows][cols],1,1],type = switchType[rows][cols], CapColor = colors,  Caps = capType, StemColor = stemcolor, clipLength = Clipped[rows][cols], Row = rows-1);}
+      else {translate([0,0,switchH])rotate([0,0,-90])scale([1.0,1,1])Switch(switchScale = [CapScale[rows][cols],1,1],type = switchType[rows][cols], CapColor = colors,  Caps = capType, StemColor = stemcolor, clipLength = Clipped[rows][cols], Row = rows-1);}
+    }
+  }
 }
