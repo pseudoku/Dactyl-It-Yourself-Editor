@@ -1,9 +1,11 @@
 include <SRC/DIYBuilder.scad>
 //Uncomment Layout you want or build your own layout
 
-//include <SRC/Layouts/Pseudoku/HypoWarp_Choc.scad>        // (6x3+2)+[trichord+1] Hypothetical Rhetoric.
+//include <SRC/Layouts/Pseudoku/HypoWarp.scad>        // (6x3+2)+[trichord+1] Hypothetical Rhetoric.
+//include <SRC/Layouts/Pseudoku/MiniWarp.scad>             // (5x3)+[trichord]     Utility Event Horrizon    Status:Complete no build test
+//include <SRC/Layouts/Pseudoku/Epigrammatic.scad>   
+
 //include <SRC/Layouts/Darrenph1/D-Warp.scad>                // (6x4)+[trichord+1]   Tangental Home Row Cherry Cap Height.
-include <SRC/Layouts/Pseudoku/MiniWarp.scad>             // (5x3)+[trichord]     Utility Event Horrizon    Status:Complete no build test
 
 //include <SRC/Layouts/Smeeba/GiGi.scad>
 include <SRC/Layouts/Smeeba/GiGi_Trichord.scad>

@@ -17,25 +17,9 @@ use <skin.scad>
 * update major layouts to work with new build calls.
 
 */
-module rotate(angle)            // built-in rotate is inaccurate for 90 degrees, etc
-{
- a = len(angle) == undef ? [0, 0, angle] : angle;
- cx = cos(a[0]);
- cy = cos(a[1]);
- cz = cos(a[2]);
- sx = sin(a[0]);
- sy = sin(a[1]);
- sz = sin(a[2]);
- multmatrix([
-  [ cy * cz, cz * sx * sy - cx * sz, cx * cz * sy + sx * sz, 0],
-  [ cy * sz, cx * cz + sx * sy * sz,-cz * sx + cx * sy * sz, 0],
-  [-sy,      cy * sx,                cx * cy,                0],
-  [ 0,       0,                      0,                      1]
- ]) children();
-}
 
 //################ Main Builder ############################
-module BuildTopPlate(Keyhole = false, Enclosure = true, Trackball = false, ThumbJoint = false, Border = false, PrettyBorder = false, ColoredSection = false,CustomBorder = false)
+module BuildTopPlate(Keyhole = false, Enclosure = true, BottomPlateCuts  = true, Trackball = false, ThumbJoint = false, Border = false, PrettyBorder = false, ColoredSection = false, CustomBorder = false, BuildConnectors = true, BuildWells = true)
 {
   //Submodules
   //TODO: change scope of submodules and remove duplicates now that calls are merged
@@ -50,11 +34,11 @@ module BuildTopPlate(Keyhole = false, Enclosure = true, Trackball = false, Thumb
   }
 
   module modWeb (Hulls = true,  sides = 0, refSides = 0, hullSides = [0,0,0], row, col){
-  if(SwitchOrientation[row][col] == true){
-    PlaceRmCn(row, col)scale([CapScale[row][col],1,1])modulate(PlateDim+[0,-abs(Clipped[row][col])*2,PBuffer*2], [refSides,sides,TOP],PlateDim+[-WebThickness,-abs(Clipped[row][col]),PBuffer], [-refSides,-sides,BOTTOM], Hull = Hulls, hullSide = hullSides);
-  }else {
-    PlaceRmCn(row, col)scale([1,CapScale[row][col],1])modulate(PlateDim+[-abs(Clipped[row][col])*2,0,PBuffer*2], [refSides,sides,TOP],PlateDim+[-WebThickness,0,PBuffer], [-refSides,sides,BOTTOM], Hull = Hulls, hullSide = hullSides);
-  }
+    if(SwitchOrientation[row][col] == true){
+      PlaceRmCn(row, col)scale([CapScale[row][col],1,1])modulate(PlateDim+[0,-abs(Clipped[row][col])*2,PBuffer*2], [refSides,sides,TOP],PlateDim+[-WebThickness,-abs(Clipped[row][col]),PBuffer], [-refSides,-sides,BOTTOM], Hull = Hulls, hullSide = hullSides);
+    }else {
+      PlaceRmCn(row, col)scale([1,CapScale[row][col],1])modulate(PlateDim+[-abs(Clipped[row][col])*2,0,PBuffer*2], [refSides,sides,TOP],PlateDim+[-WebThickness,0,PBuffer], [-refSides,sides,BOTTOM], Hull = Hulls, hullSide = hullSides);
+    }
   }
   //End of Submodules
 
@@ -62,13 +46,21 @@ module BuildTopPlate(Keyhole = false, Enclosure = true, Trackball = false, Thumb
   difference(){
     union(){
       rotate(tenting)translate([0,0,plateHeight]){//move plate to tent positions
-        for (cols = colRange)BuildColumn(PlateDim[2]+PBuffer, 0, BOTTOM, col = cols, rowInit = RowInits[cols], rowEnd = RowEnds[cols]);
-        //plate binding is done via layouts. most cases require custom config and generalization does not suffice. if it does than just use dactyl
-        for (i=[0:len(PBind)-1])BindColums(TopAlignment = BOTTOM, BufferAlignment1 = PBind[i][1], BufferAlignment2 = PBind[i][2], cols= PBind[i][0]);
-        for (i=[0:len(PlateCustomBind)-1]){
-          hull(){
-            for (j = [0:len(PlateCustomBind[i])-1]){
-              modWeb(Hulls = true,  sides = PlateCustomBind[i][j][4], refSides = PlateCustomBind[i][j][2], hullSides = PlateCustomBind[i][j][3], row=PlateCustomBind[i][j][1], col=PlateCustomBind[i][j][0]);
+        if(BuildWells){
+          for (cols = colRange){
+            BuildColumn(PlateDim[2]+PBuffer, 0, BOTTOM, col = cols, rowInit = RowInits[cols], rowEnd = RowEnds[cols], connectKeys = BuildConnectors);
+          }
+          //plate binding is done via layouts. most cases require custom config and generalization does not suffice. if it does than just use dactyl
+          if(BuildConnectors){
+            for (i=[0:len(PBind)-1]){
+              BindColums(TopAlignment = BOTTOM, BufferAlignment1 = PBind[i][1], BufferAlignment2 = PBind[i][2], cols= PBind[i][0]);
+            }
+            for (i=[0:len(PlateCustomBind)-1]){
+              hull(){
+                for (j = [0:len(PlateCustomBind[i])-1]){
+                  modWeb(Hulls = true,  sides = PlateCustomBind[i][j][4], refSides = PlateCustomBind[i][j][2], hullSides = PlateCustomBind[i][j][3], row=PlateCustomBind[i][j][1], col=PlateCustomBind[i][j][0]);
+                }
+              }
             }
           }
         }
@@ -88,7 +80,9 @@ module BuildTopPlate(Keyhole = false, Enclosure = true, Trackball = false, Thumb
       //enclosure
       if(Enclosure == true)color("lightpink")BuildBottomEnclosure(struct = Eborder, Mount = true, JackType = "TRRS", MCUType = true);
     }//end build union
-    //CUTS
+
+    //----- CUTS
+
     // Remove inter-columnar artifacts from borders and web joints
     BindTopCuts(Struct = TopCuts, height = 1);
 
@@ -147,6 +141,8 @@ function rowRange (col) = [RowInits[col]:RowEnds[col]]; // shorthand for row loo
 function BRowYPos (i) = ColumnOrigin[i][0][1]+RowTrans[RowInits[i]][i];
 function FRowYPos (i) = ColumnOrigin[i][0][1]+RowTrans[RowEnds[i]][i];
 function FRowZPos (i) = ColumnOrigin[i][0][1]+Height[RowEnds[i]][i];
+
+function defined(a) = a != undef;
 
 //----  Transformations and Modulating cube
 module hullPlate (referenceDimensions = [0,0,0], offsets = [0,0,0], scalings = [1,1,1]) //Convenient notation for hulling a cube by face/edge/vertex
@@ -323,12 +319,19 @@ module BindTopCuts(Struct = TopCuts, height = 0) {
   module modPlateWid (Hulls = true, hullSides = [0,0,0], rows, cols){//shorthand call for Width-wise clipping
     modulate(refDim,[sign(Clipped[rows][cols]), 0, TOP], buildDim-[abs(Clipped[rows][cols]),0,0], [-sign(Clipped[rows][cols]), 0,sides], Hull = Hulls, hullSide = hullSides);
   }
-  for (i = [0:len(Struct)-1]){
-    hull(){
-      if(SwitchOrientation[Struct[i][1]][Struct[i][0]] == true){
-        PlaceRmCn(Struct[i][1], Struct[i][0])scale([CapScale[Struct[i][1]][Struct[i][0]],1,1])modPlateLen(Hulls = true, hullSides = Struct[i][2], rows = Struct[i][1], cols = Struct[i][0]);
-      }else {
-        PlaceRmCn(Struct[i][1], Struct[i][0])scale([1,CapScale[Struct[i][1]][Struct[i][0]],1])modPlateWid(Hulls = true, hullSides = Struct[i][2], rows = Struct[i][1], cols = Struct[i][0]);
+  if(len(Struct)-1 > 0){
+    for (i = [0:len(Struct)-1]){
+      hull(){
+        if(SwitchOrientation[Struct[i][1]][Struct[i][0]] == true){
+          PlaceRmCn(Struct[i][1], Struct[i][0])scale([CapScale[Struct[i][1]][Struct[i][0]],1,1])modPlateLen(Hulls = true, hullSides = Struct[i][2], rows = Struct[i][1], cols = Struct[i][0]);
+        }else {
+          PlaceRmCn(Struct[i][1], Struct[i][0])scale([1,CapScale[Struct[i][1]][Struct[i][0]],1])modPlateWid(Hulls = true, hullSides = Struct[i][2], rows = Struct[i][1], cols = Struct[i][0]);
+        }
+        if(SwitchOrientation[Struct[i][3]][Struct[i][2]] == true){
+          PlaceRmCn(Struct[i][4], Struct[i][3])scale([CapScale[Struct[i][4]][Struct[i][3]],1,1])modPlateLen(Hulls = true, hullSides = Struct[i][5], rows = Struct[i][4], cols = Struct[i][3]);
+        }else {
+          PlaceRmCn(Struct[i][4], Struct[i][3])scale([1,CapScale[Struct[i][4]][Struct[i][3]],1])modPlateWid(Hulls = true, hullSides = Struct[i][5], rows = Struct[i][4], cols = Struct[i][3]);
+        }
       }
       if(SwitchOrientation[Struct[i][3]][Struct[i][2]] == true){
         PlaceRmCn(Struct[i][4], Struct[i][3])scale([CapScale[Struct[i][4]][Struct[i][3]],1,1])modPlateLen(Hulls = true, hullSides = Struct[i][5], rows = Struct[i][4], cols = Struct[i][3]);
@@ -472,7 +475,7 @@ module BuildTrackBorder(struct = TBborder){// use Sborder struc to build hull.
       //build a modulation of pcb casing
       translate(trackOrigin)rotate(trackTilt)rotate(SensorRot)translate([0,0,-21])hull(){
         modulate(PCBCaseDim-[0,0,0], [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = struct[i][1]);
-        modulate(PCBCaseDim-[0,0,0], [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = .9*struct[i][1]);
+        //modulate(PCBCaseDim-[0,0,0], [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = .9*struct[i][1]);
       }
     }
   }
@@ -757,11 +760,11 @@ module BuildBottomEnclosure (struct = Eborder, Mount = false,  JackType = true, 
       if(struct[ID][2] != [0,0,0]){
         transEnclose()translate(trackOrigin)rotate(trackTilt)rotate(SensorRot)translate([0,0,-21]){
           modulate(PCBCaseDim, [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = struct[ID][2]);
-          modulate(PCBCaseDim, [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = .9*struct[ID][2]);
+          //modulate(PCBCaseDim, [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = .9*struct[ID][2]);
         }
         projectEnclose()translate(trackOrigin)rotate(trackTilt)rotate(SensorRot)translate([0,0,-21]){
           scale([1.25,1.25,1])modulate(PCBCaseDim, [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = struct[ID][2]);
-          scale([1.25,1.25,1])modulate(PCBCaseDim, [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = .9*struct[ID][2]);
+          //scale([1.25,1.25,1])modulate(PCBCaseDim, [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = .9*struct[ID][2]);
         }
       }
     }
@@ -789,13 +792,13 @@ module BuildBottomEnclosure (struct = Eborder, Mount = false,  JackType = true, 
       if(JackType == "RJ45"){
         translate(JackLoc+[-7,0,0])rotate(JackAng+[0,0,0])cube([15.24+3,5,15+3], center= true);
       }  else if(JackType == "TRRS"){
-//      #translate(JackLoc+[0,0,0])rotate(JackAng+[90,0,90])translate([0,0,10])cylinder(d=11, 8,center= true, $fn=32);
+        //#translate(JackLoc+[0,0,0])rotate(JackAng+[90,0,90])translate([0,0,10])cylinder(d=11, 8,center= true, $fn=32);
         }
     }
     //CUTS
     //Mounts
     for(i = [0:len(mountScrew)-1]){
-      translate([0,0,-1])translate(mountScrew[i])cylinder(d = mountDia, 7, $fn = 32);
+      translate([0,0,-1])translate(mountScrew[i])cylinder(d = mountDia, 7, $fn = 36);
     }
 
     if(JackType == "TRRS"){
@@ -807,8 +810,8 @@ module BuildBottomEnclosure (struct = Eborder, Mount = false,  JackType = true, 
     }
 
     if(MCUType == true){
-#      translate(MCULoc)cube(MCUDim, center = true);
-#      translate(USBLoc)USBPort(20);
+      #translate(MCULoc)cube(MCUDim, center = true);
+      #translate(USBLoc)USBPort(20);
     }
     //TODO: trackball modules?
 
@@ -835,7 +838,6 @@ module BuildBottomPlate(struct = Eborder, hullList = Hstruct, JackType = true, M
   module modBorder(structID = 0, surfaceID = 0, subStructID = 0){
     row = struct[structID][surfaceID][subStructID][1];
     col = struct[structID][surfaceID][subStructID][0];
-//    echo("mod",row, col,subStructID, struct[structID][surfaceID][subStructID]);
     function SideMod(i,j) = (SwitchOrientation[i][j] && struct[structID][surfaceID][subStructID][3] == sign(Clipped[i][j]))?0:1;
 
     if (struct[structID][surfaceID][subStructID][2] == true){ //check logic for Width or Length Wise Modulation
@@ -873,7 +875,6 @@ module BuildBottomPlate(struct = Eborder, hullList = Hstruct, JackType = true, M
         hull(){
           for (j = [0:len(hullList[i])-1]) {
             for (k = [0:len(struct[hullList[i][j]][1])-1]){
-//              echo("bttm", i,j,k,struct[hullList[i][j]][1], hullList[i][j] );
               projectEnclose(2){modBorder(structID = hullList[i][j], surfaceID = 1, subStructID = k);}
             }
             // Section for TB module case
@@ -915,8 +916,8 @@ module BuildBottomPlate(struct = Eborder, hullList = Hstruct, JackType = true, M
 
     if(Mount == true){
       for(i = [0:len(mountScrew)-1]){
-        translate([0,0,0])translate(mountScrew[i])cylinder(d1 = screwtopDia, d2 =  screwholeDia, 2.8, $fn = 32);
-        translate([0,0,-.5])translate(mountScrew[i])cylinder(d = screwholeDia, bpThickness+1, $fn = 32);
+        translate([0,0,0])translate(mountScrew[i])cylinder(d1 = screwtopDia, d2 =  screwholeDia, 2.8, $fn = 36);
+        translate([0,0,-.5])translate(mountScrew[i])cylinder(d = screwholeDia, bpThickness+1, $fn = 36);
       }
     }
 
@@ -1019,8 +1020,6 @@ module TrackBall(){
      palm_track();
      rotate(SensorRot)translate([0,0,-trackR+1])cube(PCBCaseDim,center= true); // pcb housing
     }
-    rotate(SensorRot)translate([0,0,-38/2])PCB();
-//    #rotate(SensorRot)translate([0,0,-42/2])cylinder(d =1, 100); orientation check
   }
 }
 
@@ -1030,7 +1029,7 @@ module BuildKeyWells () {
     for(rows = [RowInits[cols]:RowEnds[cols]]){
       PlaceRmCn(rows, cols){
         if(SwitchOrientation[rows][cols] == true){
-          Keyhole(tol = 0, clipLength = Clipped[rows][cols], cutThickness = 1, type = SwitchTypes[rows][cols], boffsets = holeOffset);
+          Keyhole(tol = 0, clipLength = Clipped[rows][cols], cutThickness = 1, type = SwitchTypes[rows][cols], boffsets = holeOffset, plate_thickness = PlateThickness);
         }else {
           rotate([0,0,-90])Keyhole(tol = 0, clipLength = Clipped[rows][cols], cutThickness = 1, type = SwitchTypes[rows][cols], boffsets = holeOffset);
         }
