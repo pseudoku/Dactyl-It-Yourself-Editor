@@ -816,8 +816,8 @@ module BuildBottomEnclosure (struct = Eborder, Mount = false,  JackType = true, 
 }
 
 //generate Bottom Plate for mounting MCU, Jacks and weights?
-module BuildBottomPlate(struct = Eborder, hullList = Hstruct, JackType = true, MCUType = true, Mount = false)
- {
+module BuildBottomPlate(struct = Eborder, hullList = Hstruct, JackType = true, MCUType = true, Mount = false, cuts = true)
+{
   //submodule for calling the correct border modulation module and passing Parameters
   //TODO: repeating module! clean up
   function Col(n,m,l) = struct[n][m][l][0];
@@ -826,7 +826,7 @@ module BuildBottomPlate(struct = Eborder, hullList = Hstruct, JackType = true, M
   function WidCheck(i,j,k) = !SwitchOrientation[Row(i,j,k)][Col(i,j,k)]?0:abs(Clipped[Row(i,j,k)][Col(i,j,k)]);
   function LenSides(i,j,k) = SwitchOrientation[Row(i,j,k)][Col(i,j,k)]?0:sign(Clipped[Row(i,j,k)][Col(i,j,k)]);
   function WidSides(i,j,k) = !SwitchOrientation[Row(i,j,k)][Col(i,j,k)]?0:sign(Clipped[Row(i,j,k)][Col(i,j,k)]);
-//  function SideMod(i,j,k)  = (struct[i][j][k][3] == sign(Clipped[Row(i,j,k)][Col(i,j,k)]) && struct[i][j][k][2])?1:0;
+  //function SideMod(i,j,k)  = (struct[i][j][k][3] == sign(Clipped[Row(i,j,k)][Col(i,j,k)]) && struct[i][j][k][2])?1:0;
   function SideMod(i,j,k)  = (SwitchOrientation[Row(i,j,k)][Col(i,j,k)] && struct[i][j][k][3] == sign(Clipped[Row(i,j,k)][Col(i,j,k)]))?0:1;
   function SideMod2(i,j,k) = (SwitchOrientation[Row(i,j,k)][Col(i,j,k)] || struct[i][j][k][3] == sign(Clipped[Row(i,j,k)][Col(i,j,k)]))?0:1;
 
@@ -895,15 +895,17 @@ module BuildBottomPlate(struct = Eborder, hullList = Hstruct, JackType = true, M
     }
 
     //CUTS
-    for (i = [0:len(struct)-1]){  //expanded to cut artifacts from hulling higher than bottom enclosure edges
-      translate([0,0,-.02])scale(1.02)hull(){
-        for (k = [0:len(struct[i][1])-1]) {//itt throgh bottom projection list
-          projectEnclose(thickness = 4){
-            modBorder(structID = i, surfaceID = 1, subStructID = k);
-            if (struct[i][2] != [0,0,0]){
-              translate(trackOrigin)rotate(trackTilt)rotate(SensorRot)translate([0,0,-36/2]){
-                scale([1.25,1.25,1])modulate(PCBCaseDim, [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = struct[i][2]);
-                scale([1.25,1.25,1])modulate(PCBCaseDim, [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = .9*struct[i][2]);
+    if(cuts == true) {
+      for (i = [0:len(struct)-1]){  //expanded to cut artifacts from hulling higher than bottom enclosure edges
+        translate([0,0,-.02])scale(1.02)hull(){
+          for (k = [0:len(struct[i][1])-1]) {//itt throgh bottom projection list
+            projectEnclose(thickness = 4){
+              modBorder(structID = i, surfaceID = 1, subStructID = k);
+              if (struct[i][2] != [0,0,0]){
+                translate(trackOrigin)rotate(trackTilt)rotate(SensorRot)translate([0,0,-36/2]){
+                  scale([1.25,1.25,1])modulate(PCBCaseDim, [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = struct[i][2]);
+                  //scale([1.25,1.25,1])modulate(PCBCaseDim, [0,0,TOP],PCBCaseDim-[0,0,0], [0,0,TOP], Hull = true, hullSide = .9*struct[i][2]);
+                }
               }
             }
           }
