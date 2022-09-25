@@ -4,6 +4,8 @@ OpenSCAD implementation of Dactyl-like keyboard
 No clojure because I'm allergic to java
 Motivation: Rapid generation and prototyping of layouts and somewhat readable generators
 
+Prerequisites: Ensure you have the openscad fork of scad-utils https://github.com/openscad/scad-utils and skin/sweep from https://github.com/openscad/list-comprehension-demos installed in your OpenSCAD/libraries folder
+
 1. Open Editor
 2. Modify Parameter in Layouts
 3. A lot of other bullshits
